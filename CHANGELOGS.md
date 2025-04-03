@@ -1,6 +1,8 @@
 Version 1.5.2
 **MagicBounty**
 - Added `fleet_attitude` to MagicBounty, allowing you to make a fleet neutral or hostile.
+- If a bounty has no spawn locations, try again without Tags.THEME_HIDDEN.
+  - For bounties that *only* spawn in hidden systems.
 **MagicPaintjobs**
   - Added template files for MagicPaintjobs 2.0.
   - Fixed ships not showing up in new paintjob selector if they have a D-mod.
