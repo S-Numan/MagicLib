@@ -321,6 +321,9 @@ public class MagicBountyHVB {
                             true,
                             //FleetAssignment fleet_behavior,
                             FleetAssignment.DEFEND_LOCATION,
+                            // String fleet_behavior,
+                            null,
+                            // Music set id
                             null,
                             //List<String> location_marketIDs,
                             null,

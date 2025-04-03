@@ -8,15 +8,12 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="LunaLib" level="project" />
-    <orderEntry type="library" name="starfarer-api" level="project" />
     <orderEntry type="library" name="jars-ConsoleCommands" level="project" />
     <orderEntry type="library" name="LunaLib" level="project" />
     <orderEntry type="library" name="starfarer-api" level="project" />
     <orderEntry type="library" name="Vayra's Sector" level="project" />
     <orderEntry type="library" name="jars-ConsoleCommands" level="project" />
-    <orderEntry type="library" name="Kotlin-Runtime" level="application" />
-    <orderEntry type="library" name="LazyLib-Kotlin" level="application" />
-    <orderEntry type="library" name="LazyLib" level="application" />
-    <orderEntry type="library" name="starsector-98" level="application" />
+    <orderEntry type="library" name="Kotlin-Runtime" level="project" />
+    <orderEntry type="library" name="LazyLib" level="project" />
   </component>
 </module>

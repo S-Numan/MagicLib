@@ -434,6 +434,7 @@ public final class MagicBountyCoordinator {
                     .setReinforcementFaction(spec.fleet_composition_faction)
                     .setQualityOverride(spec.fleet_composition_quality)
                     .setAssignment(spec.fleet_behavior)
+                    .setAttitude(spec.fleet_attitude)
                     .setTransponderOn(spec.fleet_transponder)
                     .setVariantsPath(MagicVariables.VARIANT_PATH)
                     .create();

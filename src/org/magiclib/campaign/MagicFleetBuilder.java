@@ -14,10 +14,12 @@ import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.util.Misc;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.util.vector.Vector2f;
+import org.magiclib.bounty.FleetAttitude;
 import org.magiclib.util.MagicCampaign;
 import org.magiclib.util.MagicStringMatcher;
 import org.magiclib.util.MagicVariables;
@@ -71,6 +73,7 @@ public class MagicFleetBuilder {
     private @Nullable Float qualityOverride;
     private @Nullable SectorEntityToken spawnLocation;
     private @Nullable FleetAssignment assignment;
+    private @Nullable FleetAttitude attitude;
     private @Nullable SectorEntityToken assignmentTarget;
     private boolean isImportant = false;
     private boolean transponderOn = false;
@@ -112,6 +115,7 @@ public class MagicFleetBuilder {
                 spawnLocation,
                 assignment,
                 assignmentTarget,
+                attitude,
                 isImportant,
                 transponderOn,
                 variantsPath,
@@ -247,6 +251,11 @@ public class MagicFleetBuilder {
         return this;
     }
 
+    public MagicFleetBuilder setAttitude(@Nullable FleetAttitude attitude) {
+        this.attitude = attitude;
+        return this;
+    }
+
     /**
      * Where the fleet will go to execute its order.
      * Default: spawnLocation.
@@ -343,6 +352,7 @@ public class MagicFleetBuilder {
             @Nullable SectorEntityToken spawnLocation,
             @Nullable FleetAssignment assignment,
             @Nullable SectorEntityToken assignmentTarget,
+            @Nullable FleetAttitude attitude,
             boolean isImportant,
             boolean transponderOn,
             @Nullable String variantsPath,
@@ -593,6 +603,12 @@ public class MagicFleetBuilder {
 //        newFleet.setInflated(true);
 //        newFleet.inflateIfNeeded();
 
+        if (attitude == FleetAttitude.HOSTILE) {
+            Misc.makeHostile(newFleet);
+        } else if (attitude == FleetAttitude.NEUTRAL) {
+            Misc.makeNonHostileToFaction(newFleet, Global.getSector().getPlayerFaction().getId(), Float.MAX_VALUE);
+        }
+
         // SPAWN if needed
         if (location != null) {
             if (assignmentTarget == null) {
@@ -654,13 +670,14 @@ public class MagicFleetBuilder {
             @Nullable SectorEntityToken spawnLocation,
             @Nullable FleetAssignment assignment,
             @Nullable SectorEntityToken assignmentTarget,
+            @Nullable FleetAttitude attitude,
             boolean isImportant,
             boolean transponderOn,
             @NotNull FleetParamsV3 fleetParams
     ) {
         return createFleet(fleetName, fleetFaction, fleetType, flagshipName, flagshipVariant, false, false,
                 captain, supportFleet, true, minFP, reinforcementFaction, qualityOverride,
-                spawnLocation, assignment, assignmentTarget, isImportant, transponderOn, null, fleetParams);
+                spawnLocation, assignment, assignmentTarget, attitude, isImportant, transponderOn, null, fleetParams);
     }
 
     private static FleetMemberAPI generateShip(@Nullable String variant, @Nullable String variantsPath, boolean autofit, boolean verbose) {

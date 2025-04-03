@@ -22,7 +22,6 @@
     </orderEntry>
     <orderEntry type="module" module-name="MagicLib-Kotlin" />
     <orderEntry type="library" name="LunaLib" level="project" />
-    <orderEntry type="library" name="starfarer-api" level="project" />
     <orderEntry type="library" name="SWP" level="project" />
     <orderEntry type="module-library">
       <library>
@@ -33,10 +32,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="LazyLib-Kotlin" level="application" />
-    <orderEntry type="library" name="LazyLib" level="application" />
-    <orderEntry type="library" name="Kotlin-Runtime" level="application" />
-    <orderEntry type="library" name="starsector-98" level="application" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -58,5 +53,17 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="starfarer-api" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/annotations/24.0.0/annotations-24.0.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="Kotlin-Runtime" level="project" />
+    <orderEntry type="library" name="LazyLib" level="project" />
   </component>
 </module>
