@@ -6,6 +6,7 @@ import com.fs.starfarer.api.GameState
 import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.ModSpecAPI
 import com.fs.starfarer.api.combat.ShipAPI
+import com.fs.starfarer.api.combat.ShipHullSpecAPI
 import com.fs.starfarer.api.combat.ShipVariantAPI
 import com.fs.starfarer.api.combat.WeaponAPI
 import com.fs.starfarer.api.fleet.FleetMemberAPI
@@ -46,7 +47,6 @@ object MagicPaintjobManager {
 
     const val PJTAG_PERMA_PJ = "MagicLib_PermanentPJ"
     const val PJTAG_SHINY = "MagicLib_ShinyPJ"
-
 
 
     @JvmStatic
@@ -134,8 +134,10 @@ object MagicPaintjobManager {
                 // ignore file not there errors
                 runCatching { Global.getSettings().loadCSV(path, mod.id) }.onFailure { e ->
                     if (!(e is RuntimeException && e.message?.contains("not found in") == true)) {
-                        logger.warn("Unable to load paintjobs in ${mod.id} by " +
-                                "${MagicMisc.takeFirst(mod.author, 50)} from file $path", e)
+                        logger.warn(
+                            "Unable to load paintjobs in ${mod.id} by " +
+                                    "${MagicMisc.takeFirst(mod.author, 50)} from file $path", e
+                        )
                     }
                 }.getOrNull()
             } ?: continue
@@ -147,6 +149,8 @@ object MagicPaintjobManager {
                 try {
                     val item = modCsv.getJSONObject(i)
                     id = item.getString("id").trim()
+                    if (id.isBlank()) continue
+
                     val hullId = item.optString("hullId")?.trim()
                     val hullIds =
                         (item.optString("hullIds")?.split(",").orEmpty().map { it.trim() } + hullId).filterNotNull()
@@ -161,8 +165,8 @@ object MagicPaintjobManager {
                     val jsonLocations = listOf("$configPath$id.paintjob", "$configPath$folderName$id.paintjob")
                     val paintjobJson = jsonLocations.firstNotNullOfOrNull { path ->
                         runCatching { Global.getSettings().loadJSON(path, mod.id) }.onFailure { e ->
-                            // ignore file not there errors
-                            if (!(e is RuntimeException && e.message?.contains("not found in") == true)){
+                            // ignore file, not their errors
+                            if (!(e is RuntimeException && e.message?.contains("not found in") == true)) {
                                 logger.warn("Unable to load paintjob JSON of $id paintjob", e)
                             }
                         }.getOrNull()
@@ -186,7 +190,7 @@ object MagicPaintjobManager {
                     }?.getOrNull()
 
                     val shieldSpec = paintjobJson?.runCatching {
-                        getJSONObject("shield")?.let{ shieldJson ->
+                        getJSONObject("shield")?.let { shieldJson ->
                             MagicPaintjobSpec.PaintjobShieldSpec(
                                 shieldJson.optColor("innerColor", null),
                                 shieldJson.optColor("ringColor", null),
@@ -195,7 +199,7 @@ object MagicPaintjobManager {
                             )
                         }
                     }?.onFailure { e ->
-                        if(!(e is JSONException && e.message?.contains("not found") == true)) {
+                        if (!(e is JSONException && e.message?.contains("not found") == true)) {
                             logger.warn("Unable to load shield JSON of $id paintjob", e)
                         }
                     }?.getOrNull()
@@ -290,27 +294,29 @@ object MagicPaintjobManager {
         return Pair(newPaintjobSpecsById, newWeaponPaintjobSpecsById)
     }
 
-    private fun loadWeaponPaintjobs(mod: ModSpecAPI): List<MagicWeaponPaintjobSpec>{
+    private fun loadWeaponPaintjobs(mod: ModSpecAPI): List<MagicWeaponPaintjobSpec> {
         val newSpecs: MutableList<MagicWeaponPaintjobSpec> = mutableListOf()
         val fileLocations = listOf("$configPath$weaponSpecsFilename", "$configPath$folderName$weaponSpecsFilename")
         val weaponCsv = fileLocations.firstNotNullOfOrNull { path ->
             // ignore file not there errors
             runCatching { Global.getSettings().loadCSV(path, mod.id) }.onFailure { e ->
                 if (!(e is RuntimeException && e.message?.contains("not found in") == true)) {
-                    logger.warn("Unable to load weapon paintjobs in ${mod.id} by " +
-                            "${MagicMisc.takeFirst(mod.author, 50)} from file $path", e)
+                    logger.warn(
+                        "Unable to load weapon paintjobs in ${mod.id} by " +
+                                "${MagicMisc.takeFirst(mod.author, 50)} from file $path", e
+                    )
                 }
             }.getOrNull()
         } ?: return newSpecs
 
         logger.info(weaponCsv)
 
-        weaponCsv.forEach<JSONObject>  { weaponPJEntry ->
+        weaponCsv.forEach<JSONObject> { weaponPJEntry ->
             var id: String? = null
             runCatching {
                 id = weaponPJEntry.getString("id")
-                if(id?.isBlank() ?: true) return@forEach
-                if(newSpecs.any {it.id == id}){
+                if (id?.isBlank() ?: true) return@forEach
+                if (newSpecs.any { it.id == id }) {
                     logger.warn("Weapon Paintjob with id: $id already exists, skipping.")
                     return@forEach
                 }
@@ -333,9 +339,9 @@ object MagicPaintjobManager {
                 */
                 val spriteMap = weaponPJEntry.getString("spriteMap").split(",").mapNotNull { mapEntry ->
                     val parts = mapEntry.split("->")
-                    if(parts.size == 2){
+                    if (parts.size == 2) {
                         parts[0].trim() to parts[1].trim()
-                    } else{
+                    } else {
                         logger.warn("Weapon Paintjob with id: $id has invalid spriteMap for $parts, skipping this map.")
                         null
                     }
@@ -359,6 +365,11 @@ object MagicPaintjobManager {
         weaponPaintjobsInner.filter { spec ->
             weaponId in spec.weaponIds && (paintjobFamily?.let { it in spec.paintjobFamilies } ?: true)
         }
+
+    @JvmStatic
+    @JvmOverloads
+    fun getPaintjobsForHull(hullSpec: ShipHullSpecAPI, includeShiny: Boolean = false): List<MagicPaintjobSpec> =
+        getPaintjobsForHull(hullSpec.baseHullId, includeShiny)
 
     @JvmStatic
     @JvmOverloads
@@ -506,7 +517,7 @@ object MagicPaintjobManager {
     }
 
     @JvmStatic
-    fun removePaintjobFromShip(variant: ShipVariantAPI){
+    fun removePaintjobFromShip(variant: ShipVariantAPI) {
         variant.tags.filter { it.startsWith(MagicPaintjobHullMod.PAINTJOB_TAG_PREFIX) }
             .forEach { variant.removeTag(it) }
 
@@ -524,7 +535,7 @@ object MagicPaintjobManager {
 
     @JvmStatic
     fun applyPaintjob(variant: ShipVariantAPI?, paintjob: MagicPaintjobSpec) {
-        if(variant != null){
+        if (variant != null) {
             if (!variant.hasHullMod(MagicPaintjobHullMod.ID)) {
                 variant.addPermaMod(MagicPaintjobHullMod.ID)
             }
@@ -572,7 +583,7 @@ object MagicPaintjobManager {
             }
         }
 
-        for(weapon in combatShip.allWeapons){
+        for (weapon in combatShip.allWeapons) {
             getPaintjobsForWeapon(weapon.spec.weaponId, paintjob.paintjobFamily).forEach { weaponPaintjob ->
                 applyWeaponPaintjob(weapon, weaponPaintjob)
             }
@@ -580,7 +591,7 @@ object MagicPaintjobManager {
     }
 
     @JvmStatic
-    fun applyWeaponPaintjob(weapon: WeaponAPI?, paintjob: MagicWeaponPaintjobSpec){
+    fun applyWeaponPaintjob(weapon: WeaponAPI?, paintjob: MagicWeaponPaintjobSpec) {
         if (!isEnabled || weapon == null || paintjob.spriteMap == null) return
 
         // In case the sprites weren't loaded, load them, then get the SpriteAPIs
@@ -606,18 +617,19 @@ object MagicPaintjobManager {
 
         val tempWeaponSprite = Global.getSettings().getSprite("misc", "empty")
 
-        for (weaponSprite in weaponSprites){
+        for (weaponSprite in weaponSprites) {
             // it's hard to get a textureId out of a true sprite, so box it into SpriteAPI
             ReflectionUtils.invoke("setSprite", tempWeaponSprite, weaponSprite)
 
             // make sure only one textureId matches, I don't think it's possible? for multiple, but CYA
             val replacementMap = paintjobSprites.filter { it.key.textureId == tempWeaponSprite.textureId }
-            if(replacementMap.count() > 1){
-                logger.warn("Weapon Paintjob with id: ${paintjob.id} has multiple source sprites of the same " +
-                        "texture in the spriteMap (${replacementMap.keys.first().textureId}), skipping this map.")
+            if (replacementMap.count() > 1) {
+                logger.warn(
+                    "Weapon Paintjob with id: ${paintjob.id} has multiple source sprites of the same " +
+                            "texture in the spriteMap (${replacementMap.keys.first().textureId}), skipping this map."
+                )
                 continue
-            }
-            else if (replacementMap.count() == 1) {
+            } else if (replacementMap.count() == 1) {
                 val (_, replacementSpriteAPI) = replacementMap.entries.first()
                 // unbox the replacement sprite and get its texture, then replace the weapon sprite's texture
                 val replacementSprite = ReflectionUtils.invoke("getSprite", replacementSpriteAPI) as Sprite
@@ -629,7 +641,7 @@ object MagicPaintjobManager {
         }
     }
 
-    private fun getReplacementSprite(originalSprite: SpriteAPI, replacementSpriteID: String): SpriteAPI?{
+    private fun getReplacementSprite(originalSprite: SpriteAPI, replacementSpriteID: String): SpriteAPI? {
         Global.getSettings().loadTexture(replacementSpriteID)
         val replacementSprite = Global.getSettings().getSprite(replacementSpriteID) ?: return null
 

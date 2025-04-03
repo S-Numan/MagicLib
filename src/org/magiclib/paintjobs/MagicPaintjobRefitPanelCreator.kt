@@ -29,7 +29,7 @@ internal object MagicPaintjobRefitPanelCreator {
         // button should be not exist on modules, ships with a perma paintjob, or ships without any possible paintjobs
         val buttonShouldNotExist = !MagicPaintjobManager.isEnabled || fleetMember == null ||
                 MagicPaintjobManager.getCurrentShipPaintjob(fleetMember)?.isPermanent == true ||
-                MagicPaintjobManager.getPaintjobsForHull(fleetMember.hullId).isEmpty()
+                MagicPaintjobManager.getPaintjobsForHull(fleetMember.hullSpec).isEmpty()
 
         // return if button already exists, or should not exist
         if (paintjobButton != null && buttonShouldNotExist) hullmodsPanel.removeComponent(paintjobButton)

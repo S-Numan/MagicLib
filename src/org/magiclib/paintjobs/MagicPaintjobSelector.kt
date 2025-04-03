@@ -210,7 +210,7 @@ internal object MagicPaintjobSelector {
         // if the paintjob exists, replace the sprites
         basePaintjobSpec?.let { paintjob ->
             for(ship in ReflectionUtils.get(MagicPaintjobCombatRefitAdder.SHIPS_FIELD!!, shipPreview) as Array<ShipAPI>){
-                MagicPaintjobManager.getPaintjobsForHull(ship.hullSpec.baseHullId).firstOrNull {
+                MagicPaintjobManager.getPaintjobsForHull(ship.hullSpec).firstOrNull {
                     it.paintjobFamily?.equals(paintjob.paintjobFamily) == true || it.id == paintjob.id
                 }?.let { MagicPaintjobManager.applyPaintjob(ship, it) }
             }

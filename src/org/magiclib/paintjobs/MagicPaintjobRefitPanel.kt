@@ -101,7 +101,7 @@ internal object MagicPaintjobRefitPanel {
 
         val currentPaintjob = MagicPaintjobManager.getCurrentShipPaintjob(baseVariant)
         val baseHullPaintjobs = MagicPaintjobManager.getPaintjobsForHull(
-            (baseVariant as ShipVariantAPI).hullSpec.baseHullId, false)
+            (baseVariant as ShipVariantAPI).hullSpec, false)
 
         val selectorWidth = (paintjobPanel.width-(endPad*2+midPad*(selectorsPerRow-1)))/selectorsPerRow
         var firstInRow: UIPanelAPI? = null
@@ -144,7 +144,7 @@ internal object MagicPaintjobRefitPanel {
         // sync all the selectors, and apply the paintjob
         for (selectorPlugin in selectorPlugins) {
             selectorPlugin.onClick {
-                if (selectorPlugin.isUnlocked) {
+                if (selectorPlugin.isUnlocked || Global.getSettings().isDevMode) {
                     selectorPlugins.forEach { it.isSelected = false }
                     selectorPlugin.isSelected = true
 
@@ -156,7 +156,7 @@ internal object MagicPaintjobRefitPanel {
                         if(selectorPlugin.paintjobSpec == null)
                             MagicPaintjobManager.removePaintjobFromShip(moduleVariant)
                         else{
-                            val moduleHullID = (moduleVariant as ShipVariantAPI).hullSpec.hullId
+                            val moduleHullID = (moduleVariant as ShipVariantAPI).hullSpec.baseHullId
                             MagicPaintjobManager.getPaintjobsForHull(moduleHullID).firstOrNull {
                                 it.paintjobFamily == selectorPlugin.paintjobSpec.paintjobFamily
                             }?.let { MagicPaintjobManager.applyPaintjob(moduleVariant, it) }
