@@ -1,11 +1,9 @@
 package org.magiclib.paintjobs
 
-import com.fs.starfarer.api.Global
 import com.fs.starfarer.api.campaign.CampaignUIAPI
 import com.fs.starfarer.api.campaign.econ.MarketAPI
 import com.fs.starfarer.api.combat.BaseHullMod
 import com.fs.starfarer.api.combat.ShipAPI
-import com.fs.starfarer.api.combat.WeaponAPI
 import com.fs.starfarer.api.ui.TooltipMakerAPI
 import com.fs.starfarer.api.util.Misc
 import org.magiclib.util.MagicTxt
@@ -37,8 +35,8 @@ class MagicPaintjobHullMod : BaseHullMod() {
         val paintjob = MagicPaintjobManager.getCurrentShipPaintjob(ship.variant) ?: return
 
         // fighter wing paintjobs
-        for(wing in ship.allWings){
-            for(fighter in wing.wingMembers){
+        for (wing in ship.allWings) {
+            for (fighter in wing.wingMembers) {
                 if ("MagicPaintjobApplied" in fighter.customData) continue
 
                 MagicPaintjobManager.getPaintjobsForHull(fighter.hullSpec.baseHullId).firstOrNull {
@@ -50,13 +48,11 @@ class MagicPaintjobHullMod : BaseHullMod() {
         }
 
 
-        if ("MagicPaintjobApplied" in ship.customData) return
-        // if the paintjob sets engines, delay until the engines exist
-        if (ship.engineController.shipEngines.isEmpty() && paintjob.engineSpec != null) return
-
-        MagicPaintjobManager.applyPaintjob(ship, paintjob)
-
-        ship.setCustomData("MagicPaintjobApplied", true)
+        // If the paintjob sets engines, delay until the engines exist
+        if (ship.engineController.shipEngines.isNotEmpty() || paintjob.engineSpec == null) {
+            // Apply each frame because of shields.
+            MagicPaintjobManager.applyPaintjob(ship, paintjob)
+        }
     }
 
     override fun canBeAddedOrRemovedNow(

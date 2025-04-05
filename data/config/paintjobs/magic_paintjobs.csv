@@ -14,7 +14,7 @@ id,hullIds,name,paintjobFamily,spriteId,unlockedAutomatically,tags,unlockConditi
 # More info: https://starsector.wiki.gg/wiki/MagicLib#Ship_Sprite
 ,,,,,,,
 # Example,,,,,,,
-magiclib_hullid_examplePaintjob,onslaught,Hegslaught,Hegemony,graphics/ships/onslaught/onslaught_hegemony.png,false,,Complete the 'Slayer' achievement to unlock.,Hegemony Onslaught sprite.
+# magiclib_hullid_examplePaintjob,fury,Whitefox,Whitefox,graphics/ships/magicPaintjob_example_ship.png,false,,Complete the 'Slayer' achievement to unlock.,Whitefox Fury sprite by Nes.
 
 # Modules Example,,,,,,,
 # SCY_bluesky_nemeanlion,SCY_nemeanlion,Bluesky,Bluesky,graphics/bluesky/ships/SCY_nemeanLion.png,true,,,,

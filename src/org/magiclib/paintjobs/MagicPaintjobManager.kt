@@ -177,7 +177,7 @@ object MagicPaintjobManager {
                             MagicPaintjobSpec.PaintjobEngineSpec(
                                 engineJson.optColor("color", null),
                                 engineJson.optColor("contrailColor", null),
-                                engineJson.optFloat("spawnDistMult").takeIf { !it.isNaN() },
+                                engineJson.optFloat("contrailSpawnDistMult").takeIf { !it.isNaN() },
                                 engineJson.optFloat("contrailWidthMultiplier").takeIf { !it.isNaN() },
                                 engineJson.optColor("glowAlternateColor", null),
                                 engineJson.optFloat("glowSizeMult").takeIf { !it.isNaN() }
