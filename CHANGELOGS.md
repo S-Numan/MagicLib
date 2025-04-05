@@ -5,7 +5,9 @@ Version 1.5.3
 - Fixed Bounty Board not taking into account `trigger_playerRelationship` keys.
 - Console command to validate a bounty now includes `existing_target_memkey` in its calculation.
   - This is only a change to the console command; the bounty generation itself included this already.
-  - Crash when starting battles if there's no flagship.
+- Fixed crash when starting battles if there's no flagship.
+**MagicAchievements**
+- Fixed achievements being wiped if the game was started with the feature disabled (reported by @Lukas04).
 **Misc**
 - Fixed a few Kotlin extension methods requiring non-null params despite underlying method not needing them (thanks @niko).
 
