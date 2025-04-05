@@ -3,7 +3,8 @@ Version 1.5.3
 **MagicBounty**
 - Console command to validate a bounty now includes `existing_target_memkey` in its calculation.
   - This is only a change to the console command; the bounty generation itself included this already.
-    **Misc**
+  - Crash when starting battles if there's no flagship.
+**Misc**
 - Fixed a few Kotlin extension methods requiring non-null params despite underlying method not needing them (thanks @niko).
 
 Version 1.5.2
