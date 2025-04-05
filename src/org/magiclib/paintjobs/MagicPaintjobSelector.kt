@@ -14,9 +14,13 @@ import org.lwjgl.opengl.GL11
 import org.magiclib.ReflectionUtils
 import org.magiclib.internalextensions.*
 import org.magiclib.kotlin.*
+import org.magiclib.util.MagicTxt
 import java.awt.Color
 import kotlin.math.max
 
+/**
+ * @author Starficz
+ */
 internal object MagicPaintjobSelector {
     internal class MagicPaintjobSelectorPlugin(val paintjobSpec: MagicPaintjobSpec?) : BaseCustomUIPanelPlugin() {
         lateinit var selectorPanel: CustomPanelAPI
@@ -180,8 +184,8 @@ internal object MagicPaintjobSelector {
         with(textElement){
             position.inTL(0f, width+topPad)
             setTitleOrbitronLarge()
-            addTitle(paintjobSpec?.name ?: "Default")
-            addPara(paintjobSpec?.description ?: "The Standard Paintjob", 3f)
+            addTitle(paintjobSpec?.name ?: MagicTxt.getString("ml_mp_default"))
+            addPara(paintjobSpec?.description ?: MagicTxt.getString("ml_mp_refit_defaultDesc"), 3f)
         }
 
         return selectorPanel

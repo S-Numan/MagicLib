@@ -9,7 +9,11 @@ import org.magiclib.internalextensions.*
 import java.awt.Color
 import org.magiclib.kotlin.setAlpha
 import org.magiclib.paintjobs.MagicPaintjobRefitPanel.createMagicPaintjobRefitPanel
+import org.magiclib.util.MagicTxt
 
+/**
+ * @author Starficz
+ */
 internal object MagicPaintjobRefitPanelCreator {
     private val PAINTJOB_BUTTON_COLOR = Color(240, 160, 0, 130)
     private val PAINTJOB_BUTTON_TEXT_COLOR = PAINTJOB_BUTTON_COLOR.brighter().setAlpha(255)
@@ -37,12 +41,12 @@ internal object MagicPaintjobRefitPanelCreator {
 
         // addHullmods button should always exist in hullmodsPanel
         val addButton = existingElements.filter { ReflectionUtils.hasMethodOfName("getText", it) }.find {
-            (ReflectionUtils.invoke("getText", it) as String).contains("Add")
+            (ReflectionUtils.invoke("getText", it) as String).contains(MagicTxt.getString("ml_mp_refit_vanillaHullmodAddButtonText"))
         } ?: return
 
         // make a new button
         val newPaintjobButton = hullmodsPanel.addButton(
-            "Paintjob",
+            MagicTxt.getString("ml_mp_refit_paintjob"),
             "PAINTJOB_BUTTON",
             PAINTJOB_BUTTON_TEXT_COLOR,
             PAINTJOB_BUTTON_COLOR,
@@ -72,7 +76,7 @@ internal object MagicPaintjobRefitPanelCreator {
 
             // add back button here to make sure its lined up with existing button
             val goBackButton = paintjobPanel.addButton(
-                "Go Back",
+                MagicTxt.getString("ml_mp_refit_goBack"),
                 null,
                 PAINTJOB_BUTTON_TEXT_COLOR,
                 PAINTJOB_BUTTON_COLOR,

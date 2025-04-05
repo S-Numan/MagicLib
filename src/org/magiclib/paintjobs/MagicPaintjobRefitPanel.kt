@@ -17,7 +17,11 @@ import org.magiclib.kotlin.*
 import java.awt.Color
 import org.magiclib.paintjobs.MagicPaintjobSelector.createPaintjobSelector
 import org.magiclib.paintjobs.MagicPaintjobSelector.MagicPaintjobSelectorPlugin
+import org.magiclib.util.MagicTxt
 
+/**
+ * @author Starficz
+ */
 internal object MagicPaintjobRefitPanel {
     private const val BACKGROUND_ALPHA = 0.7f
     internal class MagicPaintjobRefitPanelPlugin(private val refitTab: UIPanelAPI) : BaseCustomUIPanelPlugin() {
@@ -135,7 +139,7 @@ internal object MagicPaintjobRefitPanel {
             // add tooltip to locked paintjobs
             if(!selectorPlugin.isUnlocked && !paintjobSpec?.unlockConditions.isNullOrBlank()){
                 scrollerTooltip.addTooltip(selectorPanel, TooltipMakerAPI.TooltipLocation.BELOW, 250f) { tooltip ->
-                    tooltip.addTitle("LOCKED")
+                    tooltip.addTitle(MagicTxt.getString("ml_mp_refit_locked"))
                     tooltip.addPara(paintjobSpec!!.unlockConditions, 0f)
                 }
             }
