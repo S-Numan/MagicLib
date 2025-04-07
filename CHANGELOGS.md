@@ -12,6 +12,7 @@ Version 1.5.3
 **Misc**
 - Fixed a few Kotlin extension methods requiring non-null params despite underlying method not needing them (thanks @niko).
 - Fixed hidden hullmods showing up in the new 0.98a codex.
+- Externalized MagicPaintjob strings.
 
 Version 1.5.2
 **MagicBounty**
