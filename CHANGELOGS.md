@@ -6,9 +6,11 @@ Version 1.5.3
 - Console command to validate a bounty now includes `existing_target_memkey` in its calculation.
   - This is only a change to the console command; the bounty generation itself included this already.
 - Fixed crash when starting battles if there's no flagship.
+
 **MagicAchievements**
 - Fixed achievements being wiped if the game was started with the feature disabled (reported by @Lukas04).
 - Fixed a performance issue during combat.
+
 **Misc**
 - Fixed a few Kotlin extension methods requiring non-null params despite underlying method not needing them (thanks @niko).
 - Fixed hidden hullmods showing up in the new 0.98a codex.
