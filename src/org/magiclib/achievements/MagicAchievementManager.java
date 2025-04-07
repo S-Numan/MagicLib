@@ -225,6 +225,12 @@ public class MagicAchievementManager {
         JSONObject commonJson;
         JSONArray savedAchievements = new JSONArray();
 
+        // Prevents accidentally wiping achievements if the feature is disabled on game load.
+        // Also, no reason to save nothing anyway.
+        if (achievements.isEmpty()) {
+            return;
+        }
+
         // Put all achievements into a json array.
         for (MagicAchievement achievement : achievements.values()) {
             try {
@@ -326,6 +332,11 @@ public class MagicAchievementManager {
             try {
                 JSONObject savedAchievementJson = savedAchievementsJson.getJSONObject(i);
                 String specId = savedAchievementJson.optString("id", "");
+
+                if (specId.isEmpty()) {
+                    continue;
+                }
+
                 // Try to load the achievement from a spec in a loaded mod.
                 MagicAchievement loadedAchievement = generatedAchievementsById.get(specId);
 

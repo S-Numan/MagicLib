@@ -304,7 +304,14 @@
     "ml_mp_permanentTooltipRefit":"This paintjob is permanent and cannot be changed.",
     "ml_mp_shiny":"This is a rare paintjob.",
     "ml_mp_appliedRefit":"Applied: %s",
+    "ml_mp_refit_paintjob": "Paintjob",
+    "ml_mp_refit_goBack": "Go Back",
+    "ml_mp_refit_defaultDesc": "The Standard Paintjob",
+    "ml_mp_refit_locked": "LOCKED",
+    # The text on the Vanilla button to add a hullmod to your ship. Used for reflection.
+    "ml_mp_refit_vanillaHullmodAddButtonText": "Add",
 
+    # MagicSubsystem
     "subsystemTitleText": "SUBSYSTEMS",
     "subsystemNameWithKeyText": "%s [%s]",
     "subsystemMoreInfoText": "PRESS %s FOR MORE INFO",

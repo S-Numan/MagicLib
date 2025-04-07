@@ -267,6 +267,10 @@ public class MagicBountySpec {
      */
     public FleetAssignment fleet_behavior;
     /**
+     * HOSTILE, NEUTRAL, DEFAULT, null.
+     */
+    public FleetAttitude fleet_attitude;
+    /**
      * The musicSetId to use for the fleet, default to the faction's default music set.
      * IMPORTANT: This must be added to the mod's `sounds.json` file. See "music_soe_fight" in the vanilla `sounds.json` for an example.
      */
@@ -381,6 +385,7 @@ public class MagicBountySpec {
             boolean fleet_transponder,
             boolean fleet_no_retreat,
             FleetAssignment fleet_behavior,
+            String fleet_attitude,
             String fleet_musicSetId,
             List<String> location_marketIDs,
             List<String> location_marketFactions,
@@ -493,6 +498,15 @@ public class MagicBountySpec {
             this.job_pick_option = MagicTxt.getString("mb_accept");
         }
 
+        FleetAttitude fleet_attitude_enum = FleetAttitude.DEFAULT;
+        if (fleet_attitude != null) {
+            if (fleet_attitude.trim().equalsIgnoreCase("hostile")) {
+                fleet_attitude_enum = FleetAttitude.HOSTILE;
+            } else if (fleet_attitude.trim().equalsIgnoreCase("neutral")) {
+                fleet_attitude_enum = FleetAttitude.NEUTRAL;
+            }
+        }
+
         this.job_pick_script = job_pick_script;
         this.job_memKey = job_memKey;
         this.job_conclusion_script = job_conclusion_script;
@@ -525,6 +539,7 @@ public class MagicBountySpec {
         this.fleet_transponder = fleet_transponder;
         this.fleet_no_retreat = fleet_no_retreat;
         this.fleet_behavior = fleet_behavior;
+        this.fleet_attitude = fleet_attitude_enum;
         this.fleet_musicSetId = fleet_musicSetId;
         this.location_marketIDs = location_marketIDs;
         this.location_marketFactions = location_marketFactions;
