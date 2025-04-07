@@ -552,6 +552,7 @@ public class MagicAchievement {
     }
 
     private transient SaveAfterOneTickScript saveAfterOneTickScript = null;
+    private transient SaveAfterOneTickCombatScript combatScript = null;
 
     /**
      * A map for storing arbitrary data. Works like the vanilla MemoryAPI, except it is saved outside of save files.
@@ -580,8 +581,11 @@ public class MagicAchievement {
 
         // Save in combat, too.
         if (Global.getCurrentState() == GameState.COMBAT && Global.getCombatEngine() != null) {
-            SaveAfterOneTickCombatScript combatScript = new SaveAfterOneTickCombatScript();
-            Global.getCombatEngine().addPlugin(combatScript);
+            if (!Global.getCombatEngine().hasPluginOfClass(SaveAfterOneTickCombatScript.class)) {
+                combatScript = new SaveAfterOneTickCombatScript();
+                Global.getCombatEngine().addPlugin(combatScript);
+            }
+
             combatScript.saveNextTick = true;
         }
 
@@ -597,6 +601,7 @@ public class MagicAchievement {
 
     private class SaveAfterOneTickScript implements EveryFrameScript {
         public boolean saveNextTick;
+        private final IntervalUtil saveInterval = new IntervalUtil(1f, 2f);
 
         @Override
         public boolean isDone() {
@@ -612,7 +617,9 @@ public class MagicAchievement {
 
         @Override
         public void advance(float amount) {
-            if (!saveNextTick) return;
+            saveInterval.advance(amount);
+            // If cooldown hasn't expired or we don't need to save, return
+            if (!saveInterval.intervalElapsed() || !saveNextTick) return;
 
             saveChangesWithoutLogging();
             saveNextTick = false;
@@ -621,10 +628,13 @@ public class MagicAchievement {
 
     private class SaveAfterOneTickCombatScript extends BaseEveryFrameCombatPlugin {
         public boolean saveNextTick;
+        private final IntervalUtil saveInterval = new IntervalUtil(1f, 2f);
 
         @Override
         public void advance(float amount, List<InputEventAPI> events) {
-            if (!saveNextTick) return;
+            saveInterval.advance(amount);
+            // If cooldown hasn't expired or we don't need to save, return
+            if (!saveInterval.intervalElapsed() || !saveNextTick) return;
 
             saveChangesWithoutLogging();
             saveNextTick = false;

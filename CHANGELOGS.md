@@ -8,8 +8,10 @@ Version 1.5.3
 - Fixed crash when starting battles if there's no flagship.
 **MagicAchievements**
 - Fixed achievements being wiped if the game was started with the feature disabled (reported by @Lukas04).
+- Fixed a performance issue during combat.
 **Misc**
 - Fixed a few Kotlin extension methods requiring non-null params despite underlying method not needing them (thanks @niko).
+- Fixed hidden hullmods showing up in the new 0.98a codex.
 
 Version 1.5.2
 **MagicBounty**
@@ -18,9 +20,9 @@ Version 1.5.2
   - For bounties that *only* spawn in hidden systems.
 
 **MagicPaintjobs**
-  - Added template files for MagicPaintjobs 2.0.
-  - Fixed ships not showing up in new paintjob selector if they have a D-mod.
-  - Fixed docs for engine paintjob files. `engineSpec` should have been `engine`.
+- Added template files for MagicPaintjobs 2.0.
+- Fixed ships not showing up in new paintjob selector if they have a D-mod.
+- Fixed docs for engine paintjob files. `engineSpec` should have been `engine`.
 
 Version 1.5.1
 - Fixed version checker file to not constantly say there's an update.
