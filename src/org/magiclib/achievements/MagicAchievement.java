@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.awt.*;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * The base class for all achievements. Extend this class to create your own.
@@ -552,7 +552,7 @@ public class MagicAchievement {
     }
 
     private transient SaveAfterOneTickScript saveAfterOneTickScript = null;
-    private transient SaveAfterOneTickCombatScript combatScript = null;
+    private static SaveAfterOneTickCombatScript combatScript = null;
 
     /**
      * A map for storing arbitrary data. Works like the vanilla MemoryAPI, except it is saved outside of save files.
@@ -581,6 +581,8 @@ public class MagicAchievement {
 
         // Save in combat, too.
         if (Global.getCurrentState() == GameState.COMBAT && Global.getCombatEngine() != null) {
+            // Share a single instance of the combat script across all achievement instances.
+            // One is enough to save all achievements periodically.
             if (!Global.getCombatEngine().hasPluginOfClass(SaveAfterOneTickCombatScript.class)) {
                 combatScript = new SaveAfterOneTickCombatScript();
                 Global.getCombatEngine().addPlugin(combatScript);
@@ -632,16 +634,20 @@ public class MagicAchievement {
 
         @Override
         public void advance(float amount, List<InputEventAPI> events) {
+            // In case combat ends and this plugin is still active, remove it.
+            if (Global.getCurrentState() != GameState.COMBAT && Global.getCombatEngine() != null) {
+                Global.getCombatEngine().removePlugin(this);
+                saveChangesWithoutLogging();
+                return;
+            }
+
+            // Save achievements periodically.
             saveInterval.advance(amount);
             // If cooldown hasn't expired or we don't need to save, return
             if (!saveInterval.intervalElapsed() || !saveNextTick) return;
 
             saveChangesWithoutLogging();
             saveNextTick = false;
-
-            if (Global.getCombatEngine() != null) {
-                Global.getCombatEngine().removePlugin(this);
-            }
         }
     }
 }

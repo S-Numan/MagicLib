@@ -1,3 +1,8 @@
+Version 1.5.4
+
+**MagicAchievements**
+- Fixed combat achievements sometimes not saving and showing an error.
+
 Version 1.5.3
 
 **MagicBounty**
