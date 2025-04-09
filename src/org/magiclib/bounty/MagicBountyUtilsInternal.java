@@ -34,139 +34,91 @@ public class MagicBountyUtilsInternal {
             replaced = replaced.replace(replacement.getKey(), replacement.getValue());
         }
 
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$sonDaughterChild", new StringCreator() {
-            @Override
-            public String create() {
-                switch (bounty.getFleet().getCommander().getGender()) {
-                    case MALE:
-                        return MagicTxt.getString("mb_son");
-                    case FEMALE:
-                        return MagicTxt.getString("mb_daughter");
-                    default:
-                        return MagicTxt.getString("mb_child");
-                }
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$sonDaughterChild", () -> {
+            return switch (bounty.getFleet().getCommander().getGender()) {
+                case MALE -> MagicTxt.getString("mb_son");
+                case FEMALE -> MagicTxt.getString("mb_daughter");
+                default -> MagicTxt.getString("mb_child");
+            };
+        });
+
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$fatherMotherParent", () -> {
+            return switch (bounty.getFleet().getCommander().getGender()) {
+                case MALE -> MagicTxt.getString("mb_father");
+                case FEMALE -> MagicTxt.getString("mb_mother");
+                default -> MagicTxt.getString("mb_parent");
+            };
+        });
+
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$manWomanPerson", () -> {
+            if (bounty.getFleet().getCommander().isAICore()) {
+                return MagicTxt.getString("mb_ai");
+            } else {
+                return switch (bounty.getFleet().getCommander().getGender()) {
+                    case MALE -> MagicTxt.getString("mb_man");
+                    case FEMALE -> MagicTxt.getString("mb_woman");
+                    default -> MagicTxt.getString("mb_person");
+                };
             }
         });
 
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$fatherMotherParent", new StringCreator() {
-            @Override
-            public String create() {
-                switch (bounty.getFleet().getCommander().getGender()) {
-                    case MALE:
-                        return MagicTxt.getString("mb_father");
-                    case FEMALE:
-                        return MagicTxt.getString("mb_mother");
-                    default:
-                        return MagicTxt.getString("mb_parent");
-                }
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$hisHerTheir", () -> {
+            if (bounty.getFleet().getCommander().isAICore()) {
+                return MagicTxt.getString("mb_its");
+            } else {
+                return switch (bounty.getFleet().getCommander().getGender()) {
+                    case MALE -> MagicTxt.getString("mb_his");
+                    case FEMALE -> MagicTxt.getString("mb_her");
+                    default -> MagicTxt.getString("mb_their");
+                };
             }
         });
 
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$manWomanPerson", new StringCreator() {
-            @Override
-            public String create() {
-                if (bounty.getFleet().getCommander().isAICore()) {
-                    return MagicTxt.getString("mb_ai");
-                } else {
-                    switch (bounty.getFleet().getCommander().getGender()) {
-                        case MALE:
-                            return MagicTxt.getString("mb_man");
-                        case FEMALE:
-                            return MagicTxt.getString("mb_woman");
-                        default:
-                            return MagicTxt.getString("mb_person");
-                    }
-                }
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$heSheThey", () -> {
+            if (bounty.getFleet().getCommander().isAICore()) {
+                return MagicTxt.getString("mb_it");
+            } else {
+                return switch (bounty.getFleet().getCommander().getGender()) {
+                    case MALE -> MagicTxt.getString("mb_he");
+                    case FEMALE -> MagicTxt.getString("mb_she");
+                    default -> MagicTxt.getString("mb_they");
+                };
             }
         });
 
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$hisHerTheir", new StringCreator() {
-            @Override
-            public String create() {
-                if (bounty.getFleet().getCommander().isAICore()) {
-                    return MagicTxt.getString("mb_its");
-                } else {
-                    switch (bounty.getFleet().getCommander().getGender()) {
-                        case MALE:
-                            return MagicTxt.getString("mb_his");
-                        case FEMALE:
-                            return MagicTxt.getString("mb_her");
-                        default:
-                            return MagicTxt.getString("mb_their");
-                    }
-                }
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$heIsSheIsTheyAre", () -> {
+            if (bounty.getFleet().getCommander().isAICore()) {
+                return MagicTxt.getString("mb_itIs");
+            } else {
+                return switch (bounty.getFleet().getCommander().getGender()) {
+                    case MALE -> MagicTxt.getString("mb_heIs");
+                    case FEMALE -> MagicTxt.getString("mb_sheIs");
+                    default -> MagicTxt.getString("mb_theyAre");
+                };
             }
         });
 
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$heSheThey", new StringCreator() {
-            @Override
-            public String create() {
-                if (bounty.getFleet().getCommander().isAICore()) {
-                    return MagicTxt.getString("mb_it");
-                } else {
-                    switch (bounty.getFleet().getCommander().getGender()) {
-                        case MALE:
-                            return MagicTxt.getString("mb_he");
-                        case FEMALE:
-                            return MagicTxt.getString("mb_she");
-                        default:
-                            return MagicTxt.getString("mb_they");
-                    }
-                }
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$himHerThem", () -> {
+            if (bounty.getFleet().getCommander().isAICore()) {
+                return MagicTxt.getString("mb_it");
+            } else {
+                return switch (bounty.getFleet().getCommander().getGender()) {
+                    case MALE -> MagicTxt.getString("mb_him");
+                    case FEMALE -> MagicTxt.getString("mb_her");
+                    default -> MagicTxt.getString("mb_them");
+                };
             }
         });
 
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$heIsSheIsTheyAre", new StringCreator() {
-            @Override
-            public String create() {
-                if (bounty.getFleet().getCommander().isAICore()) {
-                    return MagicTxt.getString("mb_itIs");
-                } else {
-                    switch (bounty.getFleet().getCommander().getGender()) {
-                        case MALE:
-                            return MagicTxt.getString("mb_heIs");
-                        case FEMALE:
-                            return MagicTxt.getString("mb_sheIs");
-                        default:
-                            return MagicTxt.getString("mb_theyAre");
-                    }
-                }
-            }
-        });
-
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$himHerThem", new StringCreator() {
-            @Override
-            public String create() {
-                if (bounty.getFleet().getCommander().isAICore()) {
-                    return MagicTxt.getString("mb_it");
-                } else {
-                    switch (bounty.getFleet().getCommander().getGender()) {
-                        case MALE:
-                            return MagicTxt.getString("mb_him");
-                        case FEMALE:
-                            return MagicTxt.getString("mb_her");
-                        default:
-                            return MagicTxt.getString("mb_them");
-                    }
-                }
-            }
-        });
-
-        StringCreator reflexivePronounStringCreator = new StringCreator() {
-            @Override
-            public String create() {
-                if (bounty.getFleet().getCommander().isAICore()) {
-                    return MagicTxt.getString("mb_itself");
-                } else {
-                    switch (bounty.getFleet().getCommander().getGender()) {
-                        case MALE:
-                            return MagicTxt.getString("mb_himself");
-                        case FEMALE:
-                            return MagicTxt.getString("mb_herself");
-                        default:
-                            return MagicTxt.getString("mb_themselves");
-                    }
-                }
+        StringCreator reflexivePronounStringCreator = () -> {
+            if (bounty.getFleet().getCommander().isAICore()) {
+                return MagicTxt.getString("mb_itself");
+            } else {
+                return switch (bounty.getFleet().getCommander().getGender()) {
+                    case MALE -> MagicTxt.getString("mb_himself");
+                    case FEMALE -> MagicTxt.getString("mb_herself");
+                    default -> MagicTxt.getString("mb_themselves");
+                };
             }
         };
         // Typo fixed in 0.46.0
@@ -174,105 +126,41 @@ public class MagicBountyUtilsInternal {
         replaced = MagicTxt.replaceAllIfPresent(replaced, "$himselfHerselfThemselves", reflexivePronounStringCreator);
 
 
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$system", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getFleetSpawnLocation().getContainingLocation().getNameWithNoType();
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$system", () -> bounty.getFleetSpawnLocation().getContainingLocation().getNameWithNoType());
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$shipName", () -> bounty.getFleet().getFlagship().getShipName());
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$location", () -> {
+            if (bounty.getFleetSpawnLocation().getMarket() != null) {
+                return bounty.getFleetSpawnLocation().getMarket().getName();
             }
+            return bounty.getFleetSpawnLocation().getFullName();
         });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$shipName", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getFleet().getFlagship().getShipName();
-            }
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$givingFaction", () -> bounty.getGivingFaction() != null
+                ? bounty.getGivingFaction().getDisplayNameWithArticle()
+                : "a faction");
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$rewardFaction", () -> {
+            FactionAPI rewardFaction = Global.getSector().getFaction(bounty.getRewardFactionId());
+            return rewardFaction != null
+                    ? rewardFaction.getDisplayNameWithArticle()
+                    : "a faction";
         });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$location", new StringCreator() {
-            @Override
-            public String create() {
-                if (bounty.getFleetSpawnLocation().getMarket() != null) {
-                    return bounty.getFleetSpawnLocation().getMarket().getName();
-                }
-                return bounty.getFleetSpawnLocation().getFullName();
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$givingFaction", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getGivingFaction() != null
-                        ? bounty.getGivingFaction().getDisplayNameWithArticle()
-                        : "a faction";
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$rewardFaction", new StringCreator() {
-            @Override
-            public String create() {
-                FactionAPI rewardFaction = Global.getSector().getFaction(bounty.getRewardFactionId());
-                return rewardFaction != null
-                        ? rewardFaction.getDisplayNameWithArticle()
-                        : "a faction";
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$targetFaction", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getFleet().getFaction().getDisplayNameWithArticle();
-            }
-        });
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$targetFaction", () -> bounty.getFleet().getFaction().getDisplayNameWithArticle());
         // Deprecated in 1.1.2
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$faction", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getFleet().getFaction().getDisplayNameWithArticle();
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$reward", new StringCreator() {
-            @Override
-            public String create() {
-                return Misc.getDGSCredits(bounty.getSpec().job_credit_reward);
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$name", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getFleet().getCommander().getNameString();
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$firstName", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getFleet().getCommander().getName().getFirst();
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$lastName", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getFleet().getCommander().getName().getLast();
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$constellation", new StringCreator() {
-            @Override
-            public String create() {
-                return bounty.getFleetSpawnLocation().getContainingLocation().getConstellation().getName();
-            }
-        });
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$shipFleet", new StringCreator() {
-            @Override
-            public String create() {
-                if (bounty.getFleet().getFleetData().getMembersListCopy().size() == 1) {
-                    return MagicTxt.getString("mb_var_ship");
-                } else {
-                    return MagicTxt.getString("mb_var_fleet");
-                }
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$faction", () -> bounty.getFleet().getFaction().getDisplayNameWithArticle());
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$reward", () -> Misc.getDGSCredits(bounty.getSpec().job_credit_reward));
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$name", () -> bounty.getFleet().getCommander().getNameString());
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$firstName", () -> bounty.getFleet().getCommander().getName().getFirst());
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$lastName", () -> bounty.getFleet().getCommander().getName().getLast());
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$constellation", () -> bounty.getFleetSpawnLocation().getContainingLocation().getConstellation().getName());
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$shipFleet", () -> {
+            if (bounty.getFleet().getFleetData().getMembersListCopy().size() == 1) {
+                return MagicTxt.getString("mb_var_ship");
+            } else {
+                return MagicTxt.getString("mb_var_fleet");
             }
         });
 
         //FAILSAFE
-        replaced = MagicTxt.replaceAllIfPresent(replaced, "$", new StringCreator() {
-            @Override
-            public String create() {
-                return "==error==";
-            }
-        });
+        replaced = MagicTxt.replaceAllIfPresent(replaced, "$", () -> "==error==");
 
         return replaced;
     }
@@ -295,14 +183,11 @@ public class MagicBountyUtilsInternal {
     }
 
     public static String getPronoun(@NotNull PersonAPI personAPI) {
-        switch (personAPI.getGender()) {
-            case FEMALE:
-                return MagicTxt.getString("mb_distance_she");
-            case MALE:
-                return MagicTxt.getString("mb_distance_he");
-            default:
-                return MagicTxt.getString("mb_distance_they");
-        }
+        return switch (personAPI.getGender()) {
+            case FEMALE -> MagicTxt.getString("mb_distance_she");
+            case MALE -> MagicTxt.getString("mb_distance_he");
+            default -> MagicTxt.getString("mb_distance_they");
+        };
     }
 
     public static String createLocationPreciseText(final ActiveBounty bounty) {

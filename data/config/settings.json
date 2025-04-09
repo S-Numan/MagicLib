@@ -49,7 +49,7 @@
       "achievement_purple": "graphics/magic/icons/achievement_purple.png",
       "achievement_orange": "graphics/magic/icons/achievement_orange2.png",
       "magicPaintjobs": "graphics/magic/hullmods/paintjob.png",
-      "magicLibIcon": "graphics/magic/icons/magicLibIcon.png",
+      "magicLibIcon": "graphics/magic/icons/magiclib_icon.webp",
     },
     "ui": {
       "ship_arrow": "graphics/warroom/ship_arrow.png"
