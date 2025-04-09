@@ -1,3 +1,9 @@
+Version 1.5.5
+**MagicAchievements**
+- sorry
+- Fixed achievements file not getting created if missing.
+  - This prevented achievements from loading, crashing mods e.g. AotD: VoK.
+
 Version 1.5.4
 
 **MagicAchievements**
