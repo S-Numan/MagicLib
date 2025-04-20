@@ -22,7 +22,7 @@ class MagicPaintjobShinyAdder : BaseCampaignEventListener(false) {
 
         val shipsInFleetWithAvailableShiny =
             fleet.fleetData.membersListCopy.filter { it.hullId in allShinyPaintjobs.flatMap { pj -> pj.hullIds } }
-        val probability = 50 // 1 in X chance of getting a shiny
+        val probability = 50 // 1 in 50 chance of spawning a shiny
         var addedShiny = false
 
         for (ship in shipsInFleetWithAvailableShiny) {

@@ -1,3 +1,7 @@
+Version 1.5.6
+**MagicCampaign**
+- Fixed a bug since 2022 where `MagicCampaign.loadVariant` did not load `permaMods`/`sMods` correctly (reported by arbiter787).
+
 Version 1.5.5
 **MagicAchievements**
 - sorry
