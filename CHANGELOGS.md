@@ -1,8 +1,13 @@
 Version 1.5.6
+
 **MagicCampaign**
-- Fixed a bug since 2022 where `MagicCampaign.loadVariant` did not load `permaMods`/`sMods` correctly (reported by arbiter787).
+- Fixed a bug from 2022 where `MagicCampaign.loadVariant` did not load `permaMods`/`sMods` correctly (reported by arbiter787).
+
+**MagicAchievements**
+- Fixed "find/collect/see/install/etc X number of something" achievements not completing.
 
 Version 1.5.5
+
 **MagicAchievements**
 - sorry
 - Fixed achievements file not getting created if missing.
