@@ -10,7 +10,6 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.fleets.AutoDespawnScript;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,17 +24,10 @@ public final class MagicBountyBattleListener implements FleetEventListener {
     private boolean isDone = false;
 
     @NotNull
-    private final List<String> bountyKeys;
-    public void addBountyKeyIfNotExist(@NotNull String bountyKey) {
-        if (!bountyKeys.contains(bountyKey)) {
-            bountyKeys.add(bountyKey);
-        }
-    }
-    //String bountyKey;
+    private final String bountyKey;
 
     public MagicBountyBattleListener(@NotNull String bountyKey) {
-        this.bountyKeys = new ArrayList<>();
-        this.bountyKeys.add(bountyKey);
+        this.bountyKey = bountyKey;
     }
 
     @Override
@@ -46,29 +38,17 @@ public final class MagicBountyBattleListener implements FleetEventListener {
 
         fleet.removeEventListener(this);
 
-        ActiveBounty anyBounty = null;
+        ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(bountyKey);
 
-        //Get any bounty targeting this fleet, they all point to this fleet anyway
-        for (String key : bountyKeys) {
-            anyBounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-            if (anyBounty != null) {
-                break;
-            }
-        }
+        if (bounty == null) return;
 
-        if (anyBounty == null) return;
-
-        if (fleet.getId().equals(anyBounty.getFleet().getId())) {
+        if (fleet.getId().equals(bounty.getFleet().getId())) {
             fleet.setCommander(fleet.getFaction().createRandomPerson());
+            bounty.endBounty(new ActiveBounty.BountyResult.EndedWithoutPlayerInvolvement());
 
-            for (String key : bountyKeys) {
-                ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-                if (bounty != null) {
-                    bounty.endBounty(new ActiveBounty.BountyResult.EndedWithoutPlayerInvolvement());
-                }
-            }
-
+            // Quietly despawn the fleet when player goes away, since they can't complete the bounty.
             Global.getSector().addScript(new AutoDespawnScript(fleet));
+            return;
         }
     }
 
@@ -79,38 +59,24 @@ public final class MagicBountyBattleListener implements FleetEventListener {
      */
     @Override
     public void reportBattleOccurred(CampaignFleetAPI bountyFleet, CampaignFleetAPI winningFleet, BattleAPI battle) {
-        ActiveBounty anyBounty = null;
-
-        //Get any bounty targeting this fleet, they all point to this fleet anyway
-        for (String key : bountyKeys) {
-            anyBounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-            if (anyBounty != null) {
-                break;
-            }
-        }
-
+        ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(bountyKey);
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
 
-        if (anyBounty == null) return;
+        if (bounty == null) return;
 
         /////////// Below is copied (and heavily modified) from PersonBountyIntel.reportBattleOccurred.
         if (isDone) return;
 
         boolean playerInvolved = battle.isPlayerInvolved();
 
-        if (bountyFleet.getId().equals(anyBounty.getFleet().getId())) {
-            PersonAPI bountyCommander = anyBounty.getCaptain();
+        if (bountyFleet.getId().equals(bounty.getFleet().getId())) {
+            PersonAPI bountyCommander = bounty.getCaptain();
 
             if (battle.isInvolved(bountyFleet) && !playerInvolved) {
                 if (bountyFleet.getFlagship() == null || bountyFleet.getFlagship().getCaptain() != bountyCommander) {
                     bountyFleet.setCommander(bountyFleet.getFaction().createRandomPerson());
                     //Global.getSector().reportEventStage(this, "other_end", market.getPrimaryEntity(), messagePriority);
-                    for (String key : bountyKeys) {
-                        ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-                        if (bounty != null) {
-                            bounty.endBounty(new ActiveBounty.BountyResult.EndedWithoutPlayerInvolvement());
-                        }
-                    }
+                    bounty.endBounty(new ActiveBounty.BountyResult.EndedWithoutPlayerInvolvement());
                     // Quietly despawn the fleet when player goes away, since they can't complete the bounty.
                     Global.getSector().addScript(new AutoDespawnScript(bountyFleet));
 //                        result = new PersonBountyIntel.BountyResult(PersonBountyIntel.BountyResultType.END_OTHER, 0, null);
@@ -128,12 +94,12 @@ public final class MagicBountyBattleListener implements FleetEventListener {
             boolean didPlayerSalvageFlagship = false;
             List<FleetMemberAPI> bountyFleetBeforeBattle = bountyFleet.getFleetData().getSnapshot();
 
-            if (anyBounty.getFlagshipId() != null) {
+            if (bounty.getFlagshipId() != null) {
                 for (FleetMemberAPI fleetMember : playerFleet.getFleetData().getMembersListCopy()) {
 
                     for (FleetMemberAPI ship : bountyFleetBeforeBattle) {
                         // Look for the flagship of the bounty fleet's presence in the player fleet.
-                        if (fleetMember.getId().equals(anyBounty.getFlagshipId()) && fleetMember.getId().equals(ship.getId())) {
+                        if (fleetMember.getId().equals(bounty.getFlagshipId()) && fleetMember.getId().equals(ship.getId())) {
                             Global.getLogger(MagicBountyBattleListener.class).info(String.format("Player salvaged flagship %s (%s)", ship.getShipName(), ship.getId()));
                             didPlayerSalvageFlagship = true;
                         }
@@ -141,48 +107,43 @@ public final class MagicBountyBattleListener implements FleetEventListener {
                 }
             }
 
-            for (String key : bountyKeys) {
-                ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-                if(bounty == null) continue;
+            switch (bounty.getSpec().job_type) {
+                case Assassination:
+                    if (didDisableOrDestroyOriginalFlagship) {
+                        bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
+                        isDone = true;
+                    }
 
-                switch (bounty.getSpec().job_type) {
-                    case Assassination:
-                        if (didDisableOrDestroyOriginalFlagship) {
+                    break;
+                case Destruction:
+                    if (didDisableOrDestroyOriginalFlagship)
+                        if (!didPlayerSalvageFlagship) {
                             bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
+                            isDone = true;
+                        } else {
+                            // If the bounty required destroying the target, but player salvaged their ship, they don't get credits.
+                            bounty.endBounty(new ActiveBounty.BountyResult.FailedSalvagedFlagship());
                             isDone = true;
                         }
 
-                        break;
-                    case Destruction:
-                        if (didDisableOrDestroyOriginalFlagship)
-                            if (!didPlayerSalvageFlagship) {
-                                bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
-                                isDone = true;
-                            } else {
-                                // If the bounty required destroying the target, but player salvaged their ship, they don't get credits.
-                                bounty.endBounty(new ActiveBounty.BountyResult.FailedSalvagedFlagship());
-                                isDone = true;
-                            }
+                    break;
+                case Obliteration:
+                    if (bountyFleet.getFleetSizeCount() <= 0) {
+                        bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
+                        isDone = true;
+                    }
 
-                        break;
-                    case Obliteration:
-                        if (bountyFleet.getFleetSizeCount() <= 0) {
-                            bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
-                            isDone = true;
-                        }
+                    break;
+                case Neutralization:
+                case Neutralisation:
+                    float fpPostFight = bountyFleet.getFleetPoints();
 
-                        break;
-                    case Neutralization:
-                    case Neutralisation:
-                        float fpPostFight = bountyFleet.getFleetPoints();
+                    if ((fpPostFight / bounty.getInitialBountyFleetPoints()) <= (1f / 3f)) {
+                        bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
+                        isDone = true;
+                    }
 
-                        if ((fpPostFight / bounty.getInitialBountyFleetPoints()) <= (1f / 3f)) {
-                            bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
-                            isDone = true;
-                        }
-
-                        break;
-                }
+                    break;
             }
 
         }
