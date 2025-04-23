@@ -51,7 +51,7 @@ public final class MagicBountyBattleListener implements FleetEventListener {
         //Get any bounty targeting this fleet, they all point to this fleet anyway
         for (String key : bountyKeys) {
             anyBounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-            if (anyBounty != null) {
+            if (anyBounty != null && anyBounty.getStage() == ActiveBounty.Stage.Accepted) {
                 break;
             }
         }
@@ -84,7 +84,7 @@ public final class MagicBountyBattleListener implements FleetEventListener {
         //Get any bounty targeting this fleet, they all point to this fleet anyway
         for (String key : bountyKeys) {
             anyBounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-            if (anyBounty != null) {
+            if (anyBounty != null && anyBounty.getStage() == ActiveBounty.Stage.Accepted) {
                 break;
             }
         }
@@ -144,6 +144,10 @@ public final class MagicBountyBattleListener implements FleetEventListener {
             for (String key : bountyKeys) {
                 ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
                 if(bounty == null) continue;
+
+                if(bounty.getStage() != ActiveBounty.Stage.Accepted) {
+                    bounty.endBounty(new ActiveBounty.BountyResult.ExpiredWithoutAccepting());
+                }
 
                 switch (bounty.getSpec().job_type) {
                     case Assassination:
