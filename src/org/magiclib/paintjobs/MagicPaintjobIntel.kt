@@ -317,7 +317,7 @@ class MagicPaintjobIntel : MagicRefreshableBaseIntelPlugin() {
             ships
         ) { cellTooltip, row, ship, index, xPos, yPos, rowYPos ->
             val paintjobsForShip =
-                MagicPaintjobManager.getPaintjobsForHull(ship.hullSpec.baseHullId, includeShiny = false)
+                MagicPaintjobManager.getPaintjobsForHull(ship.hullSpec, includeShiny = false)
             val shipPaintjob = MagicPaintjobManager.getCurrentShipPaintjob(ship)
 
             val spriteName = ship.spriteOverride ?: shipPaintjob?.spriteId ?: ship.hullSpec.spriteName
@@ -605,7 +605,7 @@ class MagicPaintjobIntel : MagicRefreshableBaseIntelPlugin() {
                     onClick {
                         // Toggle paintjob.
                         if (isWearingPj) MagicPaintjobManager.removePaintjobFromShip(fleetShip)
-                        else MagicPaintjobManager.applyPaintjob(fleetShip, null, pj)
+                        else MagicPaintjobManager.applyPaintjob(fleetShip, pj)
 
                         refreshPanel()
                     }
@@ -753,7 +753,7 @@ class MagicPaintjobIntel : MagicRefreshableBaseIntelPlugin() {
                         onClick {
                             // Toggle paintjob.
                             if (isWearingPj || paintjob == null) MagicPaintjobManager.removePaintjobFromShip(ship)
-                            else MagicPaintjobManager.applyPaintjob(ship, null, paintjob)
+                            else MagicPaintjobManager.applyPaintjob(ship, paintjob)
 
                             refreshPanel()
                         }

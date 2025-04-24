@@ -92,6 +92,7 @@
     "fleet_composition_quality": 2,
     "fleet_transponder": false,
     "fleet_behavior": "ROAMING",
+    "fleet_attitude": null,
     "fleet_musicSetId": null,
 
     "location_entitiesID": [ "jangala", ],

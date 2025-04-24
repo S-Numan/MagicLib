@@ -22,21 +22,36 @@ class MagicPaintjobHullMod : BaseHullMod() {
         super.applyEffectsAfterShipCreation(ship, id)
         ship ?: return
         id ?: return
+        if (!MagicPaintjobManager.isEnabled) return
+        val paintjob = MagicPaintjobManager.getCurrentShipPaintjob(ship.variant) ?: return
 
-        if (!MagicPaintjobManager.isEnabled) {
-            return
-        }
+        MagicPaintjobManager.applyPaintjob(ship, paintjob)
 
-        val paintjob = getAppliedPaintjob(ship) ?: return
-
-        MagicPaintjobManager.applyPaintjob(null, ship, paintjob)
+        if (paintjob.engineSpec == null) ship.setCustomData("MagicPaintjobApplied", true)
     }
 
-    private fun getAppliedPaintjob(ship: ShipAPI): MagicPaintjobSpec? {
-        // (the tag should only be on the variant, not the ship, but I don't trust myself)
-        val tag = (ship.tags + ship.variant.tags).firstOrNull { it.startsWith(PAINTJOB_TAG_PREFIX) }
-        return tag?.removePrefix(PAINTJOB_TAG_PREFIX)?.let { paintjobId ->
-            MagicPaintjobManager.getPaintjob(paintjobId)
+    override fun advanceInCombat(ship: ShipAPI, amount: Float) {
+        if (!MagicPaintjobManager.isEnabled) return
+        val paintjob = MagicPaintjobManager.getCurrentShipPaintjob(ship.variant) ?: return
+
+        // fighter wing paintjobs
+        for (wing in ship.allWings) {
+            for (fighter in wing.wingMembers) {
+                if ("MagicPaintjobApplied" in fighter.customData) continue
+
+                MagicPaintjobManager.getPaintjobsForHull(fighter.hullSpec.baseHullId).firstOrNull {
+                    it.paintjobFamily?.equals(paintjob.paintjobFamily) == true
+                }?.let { MagicPaintjobManager.applyPaintjob(fighter, it) }
+
+                fighter.setCustomData("MagicPaintjobApplied", true)
+            }
+        }
+
+
+        // If the paintjob sets engines, delay until the engines exist
+        if (ship.engineController.shipEngines.isNotEmpty() || paintjob.engineSpec == null) {
+            // Apply each frame because of shields.
+            MagicPaintjobManager.applyPaintjob(ship, paintjob)
         }
     }
 
@@ -56,7 +71,7 @@ class MagicPaintjobHullMod : BaseHullMod() {
         super.addPostDescriptionSection(tooltip, hullSize, ship, width, isForModSpec)
         ship ?: return
 
-        val skin = MagicPaintjobManager.getPaintjobsForHull(ship.hullSpec.baseHullId, includeShiny = true)
+        val skin = MagicPaintjobManager.getPaintjobsForHull(ship.hullSpec, includeShiny = true)
             .firstOrNull { MagicPaintjobManager.getCurrentShipPaintjob(ship.fleetMember)?.id == it.id }
 
         if (skin != null) {

@@ -1,16 +1,90 @@
-Version 1.4.7
+Version 1.5.6
+
+**MagicCampaign**
+- Fixed a bug from 2022 where `MagicCampaign.loadVariant` did not load `permaMods`/`sMods` correctly (reported by arbiter787).
+
+**MagicAchievements**
+- Fixed "find/collect/see/install/etc X number of something" achievements not completing.
+
+Version 1.5.5
+
+**MagicAchievements**
+- sorry
+- Fixed achievements file not getting created if missing.
+  - This prevented achievements from loading, crashing mods e.g. AotD: VoK.
+
+Version 1.5.4
+
+**MagicAchievements**
+- Fixed combat achievements sometimes not saving and showing an error.
+
+Version 1.5.3
+
 **MagicBounty**
 - Fixed Bounty Board using `job_forFaction` instead of `trigger_marketFaction` keys.
 - Fixed Bounty Board not taking into account `trigger_playerRelationship` keys.
 - Console command to validate a bounty now includes `existing_target_memkey` in its calculation.
   - This is only a change to the console command; the bounty generation itself included this already.
-- Crash when starting battles if there's no flagship.
+- Fixed crash when starting battles if there's no flagship.
+
 **MagicAchievements**
-- Fixed serious performance issue in battles (reported by @float, thank you!).
-  - Consumed "more CPU time than all ship AI put together and almost as much CPU time as rendering."
 - Fixed achievements being wiped if the game was started with the feature disabled (reported by @Lukas04).
+- Fixed a performance issue during combat.
+
 **Misc**
 - Fixed a few Kotlin extension methods requiring non-null params despite underlying method not needing them (thanks @niko).
+- Fixed hidden hullmods showing up in the new 0.98a codex.
+- Externalized MagicPaintjob strings.
+
+Version 1.5.2
+**MagicBounty**
+- Added `fleet_attitude` to MagicBounty, allowing you to make a fleet neutral or hostile.
+- If a bounty has no spawn locations, try again without Tags.THEME_HIDDEN.
+  - For bounties that *only* spawn in hidden systems.
+
+**MagicPaintjobs**
+- Added template files for MagicPaintjobs 2.0.
+- Fixed ships not showing up in new paintjob selector if they have a D-mod.
+- Fixed docs for engine paintjob files. `engineSpec` should have been `engine`.
+
+Version 1.5.1
+- Fixed version checker file to not constantly say there's an update.
+
+Version 1.5.0
+
+**MagicPaintjobs v2**
+by Starficz
+- Added new Refit UI button to MagicPaintjobs.
+- magic_paintjobs.csv has a new optional column, `paintjobFamily`.
+- Added optional Engine/Shields support for ships, which requires a new file of `[id].paintjob` (from magic_paintjobs.csv) to work
+  - The file is in JSON, all attributes optional, with the format being:
+  ```json
+  {
+    "engines":{
+      "color":[0,0,0,0],
+      "glowAlternateColor":[0,0,0,0],
+      "glowSizeMult": 1,
+      "contrailColor":[0,0,0,0],
+      "contrailSpawnDistMult":1,
+      "contrailWidthMultiplier":1
+    }, 
+    "shield":{
+      "innerColor":[0,0,0,0],
+      "ringColor":[0,0,0,0],
+      "innerRotationRate":1,
+      "ringRotationRate":1
+    }
+  }
+  ```
+- A new CSV now exists for weapons: magic_weapon_paintjobs.csv
+  - The file is in format: `id,paintjobFamilies,weaponIds,spriteMap`
+    - `id`: Unique id for this paintjob
+    - `paintjobFamilies`: The paintjobFamily(s) (comma separated string for multiple) applicable
+    - `weaponIds`: The Starsector weapon ID(s) (comma separated string for multiple) applicable
+    - `spriteMap`: the sprite(s) (comma separated string for multiple) that should be replaced in format: 
+      `path/to/original/sprite.png` -> `path/to/new/sprite.png`
+- Wings/modules/weapons of a painted parent ship will automatically get applied with a paintjob that has a matching paintjobFamily.
+- All paintjob related files can now either be in `\data\config` or `\data\config\paintjobs`
 
 Version 1.4.6
 

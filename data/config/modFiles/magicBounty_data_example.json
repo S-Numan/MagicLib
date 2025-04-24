@@ -177,6 +177,7 @@
         "fleet_transponder": false, # Default: true.
 		"fleet_no_retreat": false, #Default: false.
         "fleet_behavior": "PASSIVE", # Default:"GUARDED". The fleet's behavior on the campaign layer. Options: ["PASSIVE", "GUARDED", "AGGRESSIVE", "ROAMING"].
+        "fleet_attitude":"DEFAULT", # Default: depends on faction hostility. Options are ["HOSTILE", "NEUTRAL", "DEFAULT"]. DEFAULT or null means it defaults to the faction's attitude towards you.
         # The musicSetId to use for the battle, defaults to no custom music.
         # IMPORTANT: This must be added to the mod's `sounds.json` file. See "music_combat" in the vanilla `sounds.json` for an example.
         "fleet_musicSetId": "music_combat",

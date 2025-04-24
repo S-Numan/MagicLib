@@ -6,6 +6,7 @@
     "MagicAutoTrails": "org.magiclib.plugins.MagicAutoTrails",
     "MagicAchievementCombatScript": "org.magiclib.achievements.MagicAchievementCombatScript",
     "MagicSubsystemsCombatPlugin":"org.magiclib.subsystems.MagicSubsystemsCombatPlugin",
+    "MagicPaintjobCombatRefitAdder":"org.magiclib.paintjobs.MagicPaintjobCombatRefitAdder",
 
     "old_ML_fakeBeamPlugin": "data.scripts.plugins.MagicFakeBeamPlugin",
     "old_ML_spriteRenderManager": "data.scripts.plugins.MagicRenderPlugin",
@@ -48,10 +49,13 @@
       "achievement_purple": "graphics/magic/icons/achievement_purple.png",
       "achievement_orange": "graphics/magic/icons/achievement_orange2.png",
       "magicPaintjobs": "graphics/magic/hullmods/paintjob.png",
-      "magicLibIcon": "graphics/magic/icons/magicLibIcon.png",
+      "magicLibIcon": "graphics/magic/icons/magiclib_icon.webp",
     },
     "ui": {
       "ship_arrow": "graphics/warroom/ship_arrow.png"
+    },
+    "icons": {
+      "lock": "graphics/magic/icons/lockIcon.png"
     }
   },
   "ruleCommandPackages": [

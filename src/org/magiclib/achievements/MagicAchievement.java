@@ -10,25 +10,14 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.StreamException;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
-import com.thoughtworks.xstream.io.xml.StaxWriter;
-import com.thoughtworks.xstream.mapper.MapperWrapper;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.awt.*;
-import java.io.*;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 /**
  * The base class for all achievements. Extend this class to create your own.
@@ -60,9 +49,6 @@ public class MagicAchievement {
     private final Map<String, Object> memory = new HashMap<>();
     @Nullable
     private Boolean hasProgressBar = null;
-    private transient long lastMemoryCheck = 0L;
-    private static final long MEMORY_CHECK_INTERVAL_MS = 2000; // 2 seconds
-    private transient int lastMemoryHash = 0;
 
     /**
      * Shown if set. Only persisted in memory, not save file.
@@ -75,55 +61,6 @@ public class MagicAchievement {
      * Put your initialization code in {@link #onApplicationLoaded(boolean)} or {@link #onSaveGameLoaded(boolean)} instead.
      */
     public MagicAchievement() {
-        if (xStream == null) {
-            try {
-                xStream = buildXStream();
-            } catch (Exception e) {
-                logger.error(e);
-            }
-        }
-    }
-
-    private static XStream buildXStream() {
-        // From obf vanilla code
-        XStream xStream = new XStream(new StaxDriver() {
-            public HierarchicalStreamWriter createWriter(OutputStream outputStream) {
-                System.gc();
-                long l2 = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-                try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-8");
-                    IndentingXMLStreamWriter indentingXMLStreamWriter = new IndentingXMLStreamWriter(this.getOutputFactory().createXMLStreamWriter(outputStreamWriter));
-                    indentingXMLStreamWriter.setIndentStep("");
-                    return new StaxWriter(this.getQnameMap(), (XMLStreamWriter) indentingXMLStreamWriter, true, this.isRepairingNamespace());
-                } catch (XMLStreamException xMLStreamException) {
-                    throw new StreamException(xMLStreamException);
-                } catch (UnsupportedEncodingException unsupportedEncodingException) {
-                    throw new StreamException(unsupportedEncodingException);
-                }
-            }
-
-            public HierarchicalStreamReader createReader(InputStream inputStream) {
-                try {
-                    return super.createReader(new InputStreamReader(inputStream, "UTF-8"));
-                } catch (UnsupportedEncodingException unsupportedEncodingException) {
-                    throw new RuntimeException(unsupportedEncodingException);
-                }
-            }
-        }) {
-            protected MapperWrapper wrapMapper(MapperWrapper mapperWrapper) {
-                return new MapperWrapper(mapperWrapper) {
-
-                    public boolean shouldSerializeMember(Class clazz, String string2) {
-                        if (clazz == Object.class) {
-                            return false;
-                        }
-                        return super.shouldSerializeMember(clazz, string2);
-                    }
-                };
-            }
-        };
-
-        return xStream;
     }
 
     /**
@@ -278,11 +215,11 @@ public class MagicAchievement {
      */
     public void saveChanges() {
         getLogger().info("Saving achievements triggered by '" + spec.getId() + "' from mod '" + spec.getModName() + "'.");
-        MagicAchievementManager.getInstance().saveAchievements(true);
+        MagicAchievementManager.getInstance().saveAchievements(true, false);
     }
 
     private void saveChangesWithoutLogging() {
-        MagicAchievementManager.getInstance().saveAchievements(false);
+        MagicAchievementManager.getInstance().saveAchievements(false, false);
     }
 
     /**
@@ -615,12 +552,13 @@ public class MagicAchievement {
     }
 
     private transient SaveAfterOneTickScript saveAfterOneTickScript = null;
+    private static SaveAfterOneTickCombatScript combatScript = null;
 
     /**
      * A map for storing arbitrary data. Works like the vanilla MemoryAPI, except it is saved outside of save files.
      */
     public @NotNull Map<String, Object> getAchievementMemory() {
-        return getMemory();
+        return memory;
     }
 
     /**
@@ -632,40 +570,28 @@ public class MagicAchievement {
     public @NotNull Map<String, Object> getMemory() {
         if (Global.getSector() == null) return memory;
 
-        long now = System.currentTimeMillis();
-        if (now - lastMemoryCheck >= MEMORY_CHECK_INTERVAL_MS) {
-            lastMemoryCheck = now;
+        // There's no way to tell if a mod mutates an object in the map,
+        // so save it automatically one tick after a mod gets it.
+        if (saveAfterOneTickScript == null) {
+            saveAfterOneTickScript = new SaveAfterOneTickScript();
+            Global.getSector().addTransientScript(saveAfterOneTickScript);
+        }
 
-            int currentHash = toHashcode(memory);
-            if (currentHash != lastMemoryHash) {
-                lastMemoryHash = currentHash;
+        saveAfterOneTickScript.saveNextTick = true;
 
-                if (saveAfterOneTickScript == null) {
-                    saveAfterOneTickScript = new SaveAfterOneTickScript();
-                    Global.getSector().addTransientScript(saveAfterOneTickScript);
-                }
-                saveAfterOneTickScript.saveNextTick = true;
-
-                // Save in combat, too.
-                if (Global.getCurrentState() == GameState.COMBAT && Global.getCombatEngine() != null) {
-                    SaveAfterOneTickCombatScript combatScript = new SaveAfterOneTickCombatScript();
-                    Global.getCombatEngine().addPlugin(combatScript);
-                    combatScript.saveNextTick = true;
-                }
+        // Save in combat, too.
+        if (Global.getCurrentState() == GameState.COMBAT && Global.getCombatEngine() != null) {
+            // Share a single instance of the combat script across all achievement instances.
+            // One is enough to save all achievements periodically.
+            if (!Global.getCombatEngine().hasPluginOfClass(SaveAfterOneTickCombatScript.class)) {
+                combatScript = new SaveAfterOneTickCombatScript();
+                Global.getCombatEngine().addPlugin(combatScript);
             }
+
+            combatScript.saveNextTick = true;
         }
 
         return memory;
-    }
-
-    private static XStream xStream;
-
-    private int toHashcode(Object obj) {
-        if (xStream != null) {
-            return xStream.toXML(obj).hashCode();
-        }
-
-        return obj.hashCode(); // Not correct but better than nothing
     }
 
     /**
@@ -677,6 +603,7 @@ public class MagicAchievement {
 
     private class SaveAfterOneTickScript implements EveryFrameScript {
         public boolean saveNextTick;
+        private final IntervalUtil saveInterval = new IntervalUtil(1f, 2f);
 
         @Override
         public boolean isDone() {
@@ -692,7 +619,9 @@ public class MagicAchievement {
 
         @Override
         public void advance(float amount) {
-            if (!saveNextTick) return;
+            saveInterval.advance(amount);
+            // If cooldown hasn't expired or we don't need to save, return
+            if (!saveInterval.intervalElapsed() || !saveNextTick) return;
 
             saveChangesWithoutLogging();
             saveNextTick = false;
@@ -701,17 +630,24 @@ public class MagicAchievement {
 
     private class SaveAfterOneTickCombatScript extends BaseEveryFrameCombatPlugin {
         public boolean saveNextTick;
+        private final IntervalUtil saveInterval = new IntervalUtil(1f, 2f);
 
         @Override
         public void advance(float amount, List<InputEventAPI> events) {
-            if (!saveNextTick) return;
+            // In case combat ends and this plugin is still active, remove it.
+            if (Global.getCurrentState() != GameState.COMBAT && Global.getCombatEngine() != null) {
+                Global.getCombatEngine().removePlugin(this);
+                saveChangesWithoutLogging();
+                return;
+            }
+
+            // Save achievements periodically.
+            saveInterval.advance(amount);
+            // If cooldown hasn't expired or we don't need to save, return
+            if (!saveInterval.intervalElapsed() || !saveNextTick) return;
 
             saveChangesWithoutLogging();
             saveNextTick = false;
-
-            if (Global.getCombatEngine() != null) {
-                Global.getCombatEngine().removePlugin(this);
-            }
         }
     }
 }

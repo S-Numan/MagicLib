@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.fs.starfarer.api.util.Misc.MAX_OFFICER_LEVEL;
 
@@ -156,7 +157,7 @@ public class MagicCampaign {
             // todo: check if order matters
             if (sMods != null) {
                 for (int k = 0; k < sMods.length(); k++) {
-                    String sModId = hullMods.getString(k);
+                    String sModId = sMods.getString(k);
                     variant.addPermaMod(sModId, true);
 //                    variant.addPermaMod(sModId);
                     variant.addMod(sModId);
@@ -164,7 +165,7 @@ public class MagicCampaign {
             }
             if (permaMods != null) {
                 for (int j = 0; j < permaMods.length(); j++) {
-                    String permaModId = hullMods.getString(j);
+                    String permaModId = permaMods.getString(j);
                     variant.addPermaMod(permaModId);
                     if (!variant.getHullMods().contains(permaModId)) {
                         variant.addMod(permaModId);
@@ -720,10 +721,8 @@ public class MagicCampaign {
      * @param factionId                person's faction
      * @param rankId                   rank from campaign.ids.Ranks
      * @param postId                   post from campaign.ids.Ranks
-     * @param isMarketAdmin
+     * @param isMarketAdmin            if the person is the market admin
      * @param industrialPlanning_level skill level for market admin
-     * @param spaceOperation_level     skill level for market admin
-     * @param groundOperations_level   skill level for market admin
      * @param commScreenPosition       position order in the comm screen, 0 is the admin position
      * @return
      */
@@ -1433,7 +1432,7 @@ public class MagicCampaign {
             desiredEntities = entities;
         }
 
-        //lets check the system lists in order by prefered distances
+        // lets check the system lists in order by prefered distances
         for (int i = 0; i < 3; i++) {
             //check if the system list has anything, and shuffle it to ensure proper randomization
             if (distance_priority.get(i).isEmpty()) {
@@ -1442,8 +1441,8 @@ public class MagicCampaign {
                 Collections.shuffle(distance_priority.get(i));
             }
 
-            //now check if any valid system got the required entity in this range band
-            //starting with unexplored systems if required
+            // now check if any valid system got the required entity in this range band
+            // starting with unexplored systems if required
             if (prioritizeUnexplored) {
                 for (StarSystemAPI s : distance_priority.get(i)) {
                     //skip visited systems
@@ -1562,11 +1561,24 @@ public class MagicCampaign {
         if (verbose) {
             log.warn("No valid system found");
         }
+
+        // If no valid systems were found, retry without the hardcoded Tags.THEME_HIDDEN restriction
+        // so that bounties that are intended to be in hidden systems will spawn.
+        if (avoid_themes != null && avoid_themes.contains(Tags.THEME_HIDDEN)) {
+            log.info("findSuitableTarget did not find a valid system, retrying without " + Tags.THEME_HIDDEN);
+            return findSuitableTarget(
+                    entityIDs,
+                    marketFactions,
+                    distance,
+                    seek_themes,
+                    avoid_themes.stream().filter(t -> !t.equals(Tags.THEME_HIDDEN)).collect(Collectors.toList()),
+                    entities,
+                    defaultToAnyEntity,
+                    prioritizeUnexplored,
+                    verbose
+            );
+        }
+
         return null;
     }
-
-    ////////////////////////////////////////////////////////////////////////////
-    //DUMPSTER
-    ////////////////////////////////////////////////////////////////////////////
-
 }
