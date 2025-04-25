@@ -19,7 +19,7 @@ public class MagicTargetListAchievement extends MagicAchievement {
     protected String KEY = "magictargetlist_targets";
 
     public Map<String, Data> getTargets() {
-        Object obj = getMemory().get(KEY);
+        Object obj = getAchievementMemory().get(KEY);
 
         if (obj == null) {
             return new HashMap<>();
@@ -30,7 +30,7 @@ public class MagicTargetListAchievement extends MagicAchievement {
                 JSONObject jsonTargets = (JSONObject) obj;
                 Map<String, Data> result = new HashMap<>(jsonTargets.length());
 
-                for (Iterator it = jsonTargets.keys(); it.hasNext(); ) {
+                for (var it = jsonTargets.keys(); it.hasNext(); ) {
                     String key = (String) it.next();
                     JSONObject jsonData = jsonTargets.getJSONObject(key);
                     result.put(key, new Data(jsonData.getString(Data.DISPLAY_NAME), jsonData.getBoolean(Data.IS_COMPLETE)));
@@ -85,7 +85,7 @@ public class MagicTargetListAchievement extends MagicAchievement {
             savedTargets.remove(key);
         }
 
-        getMemory().put(KEY, savedTargets);
+        getAchievementMemory().put(KEY, savedTargets);
     }
 
     /**
@@ -100,7 +100,7 @@ public class MagicTargetListAchievement extends MagicAchievement {
         if (savedTargets.containsKey(targetKey)) return;
 
         savedTargets.put(targetKey, new Data(displayName));
-        getMemory().put(KEY, savedTargets);
+        getAchievementMemory().put(KEY, savedTargets);
     }
 
     /**
@@ -126,7 +126,7 @@ public class MagicTargetListAchievement extends MagicAchievement {
             savedTargets.put(targetKey, new Data(targetKey, isComplete));
         }
 
-        getMemory().put(KEY, savedTargets);
+        getAchievementMemory().put(KEY, savedTargets);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class MagicTargetListAchievement extends MagicAchievement {
             return;
 
         // If all targets are complete, complete the achievement.
-        if (shouldComplete(targets)) return;
+        if (!shouldComplete(targets)) return;
 
         completeAchievement();
         saveChanges();
@@ -150,13 +150,14 @@ public class MagicTargetListAchievement extends MagicAchievement {
         super.advanceInCombat(amount, events, isSimulation);
 
         if (isSimulation) return;
+        if (isComplete()) return;
 
         Map<String, Data> targets = getTargets();
 
         if (targets.isEmpty())
             return;
 
-        if (shouldComplete(targets)) return;
+        if (!shouldComplete(targets)) return;
 
         completeAchievement();
         saveChanges();
@@ -181,10 +182,10 @@ public class MagicTargetListAchievement extends MagicAchievement {
 
         for (Data data : targets.values()) {
             if (!data.isComplete) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -214,12 +215,7 @@ public class MagicTargetListAchievement extends MagicAchievement {
 
         tooltipMakerAPI.setBulletedListMode("  -  ");
         List<Data> values = new ArrayList<>(getTargets().values());
-        Collections.sort(values, new Comparator<Data>() {
-            @Override
-            public int compare(Data o1, Data o2) {
-                return o1.displayName.compareTo(o2.displayName);
-            }
-        });
+        values.sort(Comparator.comparing(o -> o.displayName));
 
         for (Data data : values) {
             tooltipMakerAPI.addPara(data.displayName, data.isComplete ? Misc.getTextColor() : Misc.getNegativeHighlightColor(), 0f);

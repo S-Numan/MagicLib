@@ -215,11 +215,11 @@ public class MagicAchievement {
      */
     public void saveChanges() {
         getLogger().info("Saving achievements triggered by '" + spec.getId() + "' from mod '" + spec.getModName() + "'.");
-        MagicAchievementManager.getInstance().saveAchievements(true);
+        MagicAchievementManager.getInstance().saveAchievements(true, false);
     }
 
     private void saveChangesWithoutLogging() {
-        MagicAchievementManager.getInstance().saveAchievements(false);
+        MagicAchievementManager.getInstance().saveAchievements(false, false);
     }
 
     /**
