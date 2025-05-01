@@ -141,15 +141,19 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
         }
 
         //CHECK FOR EXISTING FLEET
-        if (bountySpec.existing_target_memkey != null) {
-            var targetFleetGone = true
+        if (bountySpec.existing_target_memkey != null) { // Bounty has pre-existing target
+            var targetFleetFound = false
             for (s in Global.getSector().starSystems) {
                 for (f in s.fleets) {
                     if (f.memoryWithoutUpdate.contains(bountySpec.existing_target_memkey)) {
-                        // The fleet already exists, so don't offer the bounty.
-                        return false
+                        targetFleetFound = true
+                        break
                     }
                 }
+                if (targetFleetFound) break
+            }
+            if (!targetFleetFound) { // If the bounty was intended to target an existing fleet, and no fleet was found
+                return false // Don't show it, as the target fleet does not exist
             }
         }
 
