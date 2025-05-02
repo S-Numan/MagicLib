@@ -1012,6 +1012,7 @@ public abstract class MagicSubsystem {
                 ship,
                 getBarFill(),
                 nameText,
+                getHUDColor(),
                 getExtraInfoText(),
                 getExtraInfoColor(),
                 stateText,
