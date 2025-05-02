@@ -406,8 +406,14 @@ public class MagicAchievementManager {
         Map<String, MagicAchievement> newAchievementsById = new HashMap<>();
 
         for (MagicAchievementSpec spec : specs.values()) {
+            String script = spec.getScript();
+
+            if (script == null || script.isBlank()) {
+                script = MagicAchievement.class.getCanonicalName();
+            }
+
             try {
-                final Class<?> commandClass = Global.getSettings().getScriptClassLoader().loadClass(spec.getScript());
+                final Class<?> commandClass = Global.getSettings().getScriptClassLoader().loadClass(script);
                 if (!MagicAchievement.class.isAssignableFrom(commandClass)) {
                     throw new RuntimeException(String.format("%s does not extend %s", commandClass.getCanonicalName(), MagicAchievement.class.getCanonicalName()));
                 }
@@ -415,10 +421,10 @@ public class MagicAchievementManager {
                 MagicAchievement magicAchievement = (MagicAchievement) commandClass.newInstance();
                 magicAchievement.spec = spec;
                 newAchievementsById.put(spec.getId(), magicAchievement);
-                logger.info("Loaded achievement " + spec.getId() + " from " + spec.getModId() + " with script " + spec.getScript() + ".");
+                logger.info("Loaded achievement " + spec.getId() + " from " + spec.getModId() + " with script " + script + ".");
             } catch (Exception e) {
                 if (spec != null)
-                    logger.warn(String.format("Unable to load achievement '%s' because class '%s' didn't load!", spec.getId(), spec.getScript()), e);
+                    logger.warn(String.format("Unable to load achievement '%s' because class '%s' didn't load!", spec.getId(), script), e);
                 else
                     logger.warn("Unable to load achievement because spec was null! What are you doing?!", e);
             }
