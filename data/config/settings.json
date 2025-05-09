@@ -59,6 +59,7 @@
     }
   },
   "ruleCommandPackages": [
-    "org.magiclib.bounty.rulecmd"
+    "org.magiclib.bounty.rulecmd",
+    "org.magiclib.paintjobs.rulecmd"
   ]
 }

@@ -1,3 +1,15 @@
+Version 1.5.7
+
+**MagicBounty**
+- Fixed bounties that use existing_target_memkey (by Numan).
+- Fixed shiny paintjobs not getting added due to vanilla wonkiness.
+
+**MagicAchievements**
+- Increased "shiny" paintjob spawn rate to 1 in 25 (was 1 in 50).
+  - "Shiny" paintjobs only show up in NPC fleets only and are permanent (cannot be removed/changed).
+- Paintjob UI on refit screen now makes sounds.
+- Removed perf impact of checking if there's a completed achievement to show a notification for. 
+
 Version 1.5.6
 
 **MagicCampaign**

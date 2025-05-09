@@ -12,3 +12,4 @@ media/
 ^release_checklist.md$
 docs/
 dokka/
+lib/

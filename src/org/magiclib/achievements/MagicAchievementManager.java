@@ -458,6 +458,9 @@ public class MagicAchievementManager {
                 try {
                     JSONObject item = modCsv.getJSONObject(i);
                     id = item.getString("id").trim();
+
+                    if (id.isBlank()) continue;
+
                     String name = item.getString("name").trim();
                     String description = item.getString("description").trim();
                     String tooltip = item.getString("tooltip").trim();
