@@ -8,8 +8,8 @@ DO_NOT_USE
 .flac$
 banner.png$
 .github/
-media/
+^media/
 ^release_checklist.md$
-docs/
-dokka/
-lib/
+^docs/
+^dokka/
+^lib/
