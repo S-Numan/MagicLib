@@ -10,6 +10,12 @@ Version 1.5.7
 - Paintjob UI on refit screen now makes sounds.
 - Removed perf impact of checking if there's a completed achievement to show a notification for. 
 
+**MagicSubsystems**
+- Improved clarity of text (contributed by @Ruddygreat).
+
+**Other**
+- Added `List<String>.magicJoinToString` as a Kotlin extension method, which joins strings in a list using different separators based on the number of elements
+
 Version 1.5.6
 
 **MagicCampaign**
