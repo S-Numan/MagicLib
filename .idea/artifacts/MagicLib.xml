@@ -2,8 +2,8 @@
   <artifact type="jar" build-on-make="true" name="MagicLib">
     <output-path>$PROJECT_DIR$/jars</output-path>
     <root id="archive" name="MagicLib.jar">
-      <element id="module-source" name="MagicLib" />
       <element id="module-output" name="MagicLib" />
+      <element id="module-source" name="MagicLib" />
     </root>
   </artifact>
 </component>
