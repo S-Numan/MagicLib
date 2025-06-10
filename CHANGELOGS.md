@@ -3,6 +3,7 @@ Version 1.5.7
 **MagicBounty**
 - Fixed bounties that use existing_target_memkey (by Numan).
 - Fixed shiny paintjobs not getting added due to vanilla wonkiness.
+- Accepted bounty intel is now marked as important.
 
 **MagicAchievements**
 - Increased "shiny" paintjob spawn rate to 1 in 25 (was 1 in 50).
