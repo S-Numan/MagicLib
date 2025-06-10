@@ -151,13 +151,20 @@ public final class MagicBountyBattleListener implements FleetEventListener {
 
             for (String key : bountyKeys) {
                 ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-                if (bounty == null) continue;
+                if (bounty == null) {
+                    continue;
+                }
 
+                // Skip bounties that have already been completed (not in "ready to accept" or "accepted" stages)
+                if (bounty.getStage() != ActiveBounty.Stage.NotAccepted && bounty.getStage() != ActiveBounty.Stage.Accepted) {
+                    continue;
+                }
+
+                // Go through each bounty's win conditions and end the bounty if met.
                 switch (bounty.getSpec().job_type) {
                     case Assassination:
                         if (didDisableOrDestroyOriginalFlagship) {
                             bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
-                            isDone = true;
                         }
 
                         break;
@@ -165,18 +172,15 @@ public final class MagicBountyBattleListener implements FleetEventListener {
                         if (didDisableOrDestroyOriginalFlagship)
                             if (!didPlayerSalvageFlagship) {
                                 bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
-                                isDone = true;
                             } else {
                                 // If the bounty required destroying the target, but player salvaged their ship, they don't get credits.
                                 bounty.endBounty(new ActiveBounty.BountyResult.FailedSalvagedFlagship());
-                                isDone = true;
                             }
 
                         break;
                     case Obliteration:
                         if (bountyFleet.getFleetSizeCount() <= 0) {
                             bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
-                            isDone = true;
                         }
 
                         break;
@@ -186,13 +190,33 @@ public final class MagicBountyBattleListener implements FleetEventListener {
 
                         if ((fpPostFight / bounty.getInitialBountyFleetPoints()) <= (1f / 3f)) {
                             bounty.endBounty(new ActiveBounty.BountyResult.Succeeded(true));
-                            isDone = true;
                         }
 
                         break;
                 }
             }
 
+            if (bountyFleet.getFleetSizeCount() <= 0) {
+                // Fleet is totally dead, player is not gonna be starting another battle to finish an Obliteration bounty.
+                isDone = true;
+            } else {
+                // Handle the case where a battle occurred but player didn't complete all bounties.
+                // We keep the BattleListener running until all bounties on the fleet have been completed (or the fleet is defeated, in reportFleetDespawnedToListener).
+                boolean hasUnfinishedBounty = false;
+
+                for (String key : bountyKeys) {
+                    ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
+                    if (bounty != null) {
+                        if (bounty.getStage() == ActiveBounty.Stage.NotAccepted || bounty.getStage() == ActiveBounty.Stage.Accepted) {
+                            hasUnfinishedBounty = true;
+                        }
+                    }
+                }
+
+                if (!hasUnfinishedBounty) {
+                    isDone = true;
+                }
+            }
         }
     }
 }
