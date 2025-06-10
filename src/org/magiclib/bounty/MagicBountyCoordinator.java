@@ -479,7 +479,7 @@ public final class MagicBountyCoordinator {
                 if (eventListener instanceof MagicBountyBattleListener) {
                     doesBountyHaveListener = true;
                     // Attempt to add this bounty key if it doesn't already exist, along with the already present one. This lets multiple bounties target the same fleet.
-                    ((MagicBountyBattleListener) eventListener).addBountyKeyIfNotExist((bounty.getKey()));
+                    ((MagicBountyBattleListener) eventListener).addBountyKey(bounty.getKey());
                     break;
                 }
             }

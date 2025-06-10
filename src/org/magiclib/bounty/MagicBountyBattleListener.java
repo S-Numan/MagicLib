@@ -10,8 +10,9 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.fleets.AutoDespawnScript;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Ends bounties based on battle results.
@@ -24,20 +25,29 @@ public final class MagicBountyBattleListener implements FleetEventListener {
      */
     private boolean isDone = false;
 
+    @Deprecated
     @NotNull
-    private final List<String> bountyKeys;
-    public void addBountyKeyIfNotExist(@NotNull String bountyKey) {
-        if (!bountyKeys.contains(bountyKey)) {
-            bountyKeys.add(bountyKey);
-        }
-    }
-    //String bountyKey;
+    private final String bountyKey;
+
+    @NotNull
+    private final Set<String> bountyKeys;
 
     public MagicBountyBattleListener(@NotNull String bountyKey) {
-        this.bountyKeys = new ArrayList<>();
+        this.bountyKey = bountyKey;
+        this.bountyKeys = new HashSet<>();
         this.bountyKeys.add(bountyKey);
     }
 
+    /**
+     * If a key is already present, does nothing.
+     */
+    public void addBountyKey(@NotNull String bountyKey) {
+        this.bountyKeys.add(bountyKey);
+    }
+
+    /**
+     * If the fleet has despawned, end all bounties on the fleet as [EndedWithoutPlayerInvolvement].
+     */
     @Override
     public void reportFleetDespawnedToListener(CampaignFleetAPI fleet, CampaignEventListener.FleetDespawnReason reason, Object param) {
         if (isDone) {
@@ -46,19 +56,18 @@ public final class MagicBountyBattleListener implements FleetEventListener {
 
         fleet.removeEventListener(this);
 
-        ActiveBounty anyBounty = null;
+        ActiveBounty firstAcceptedBountyOnFleet = null;
 
-        //Get any bounty targeting this fleet, they all point to this fleet anyway
         for (String key : bountyKeys) {
-            anyBounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-            if (anyBounty != null && anyBounty.getStage() == ActiveBounty.Stage.Accepted) {
+            firstAcceptedBountyOnFleet = MagicBountyCoordinator.getInstance().getActiveBounty(key);
+            if (firstAcceptedBountyOnFleet != null && firstAcceptedBountyOnFleet.getStage() == ActiveBounty.Stage.Accepted) {
                 break;
             }
         }
 
-        if (anyBounty == null) return;
+        if (firstAcceptedBountyOnFleet == null) return;
 
-        if (fleet.getId().equals(anyBounty.getFleet().getId())) {
+        if (fleet.getId().equals(firstAcceptedBountyOnFleet.getFleet().getId())) {
             fleet.setCommander(fleet.getFaction().createRandomPerson());
 
             for (String key : bountyKeys) {
@@ -79,27 +88,26 @@ public final class MagicBountyBattleListener implements FleetEventListener {
      */
     @Override
     public void reportBattleOccurred(CampaignFleetAPI bountyFleet, CampaignFleetAPI winningFleet, BattleAPI battle) {
-        ActiveBounty anyBounty = null;
+        ActiveBounty firstAcceptedBountyOnFleet = null;
 
-        //Get any bounty targeting this fleet, they all point to this fleet anyway
         for (String key : bountyKeys) {
-            anyBounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-            if (anyBounty != null && anyBounty.getStage() == ActiveBounty.Stage.Accepted) {
+            firstAcceptedBountyOnFleet = MagicBountyCoordinator.getInstance().getActiveBounty(key);
+            if (firstAcceptedBountyOnFleet != null && firstAcceptedBountyOnFleet.getStage() == ActiveBounty.Stage.Accepted) {
                 break;
             }
         }
 
         CampaignFleetAPI playerFleet = Global.getSector().getPlayerFleet();
 
-        if (anyBounty == null) return;
+        if (firstAcceptedBountyOnFleet == null) return;
 
         /////////// Below is copied (and heavily modified) from PersonBountyIntel.reportBattleOccurred.
         if (isDone) return;
 
         boolean playerInvolved = battle.isPlayerInvolved();
 
-        if (bountyFleet.getId().equals(anyBounty.getFleet().getId())) {
-            PersonAPI bountyCommander = anyBounty.getCaptain();
+        if (bountyFleet.getId().equals(firstAcceptedBountyOnFleet.getFleet().getId())) {
+            PersonAPI bountyCommander = firstAcceptedBountyOnFleet.getCaptain();
 
             if (battle.isInvolved(bountyFleet) && !playerInvolved) {
                 if (bountyFleet.getFlagship() == null || bountyFleet.getFlagship().getCaptain() != bountyCommander) {
@@ -128,12 +136,12 @@ public final class MagicBountyBattleListener implements FleetEventListener {
             boolean didPlayerSalvageFlagship = false;
             List<FleetMemberAPI> bountyFleetBeforeBattle = bountyFleet.getFleetData().getSnapshot();
 
-            if (anyBounty.getFlagshipId() != null) {
+            if (firstAcceptedBountyOnFleet.getFlagshipId() != null) {
                 for (FleetMemberAPI fleetMember : playerFleet.getFleetData().getMembersListCopy()) {
 
                     for (FleetMemberAPI ship : bountyFleetBeforeBattle) {
                         // Look for the flagship of the bounty fleet's presence in the player fleet.
-                        if (fleetMember.getId().equals(anyBounty.getFlagshipId()) && fleetMember.getId().equals(ship.getId())) {
+                        if (fleetMember.getId().equals(firstAcceptedBountyOnFleet.getFlagshipId()) && fleetMember.getId().equals(ship.getId())) {
                             Global.getLogger(MagicBountyBattleListener.class).info(String.format("Player salvaged flagship %s (%s)", ship.getShipName(), ship.getId()));
                             didPlayerSalvageFlagship = true;
                         }
@@ -143,11 +151,7 @@ public final class MagicBountyBattleListener implements FleetEventListener {
 
             for (String key : bountyKeys) {
                 ActiveBounty bounty = MagicBountyCoordinator.getInstance().getActiveBounty(key);
-                if(bounty == null) continue;
-
-                if(bounty.getStage() != ActiveBounty.Stage.Accepted) {
-                    bounty.endBounty(new ActiveBounty.BountyResult.ExpiredWithoutAccepting());
-                }
+                if (bounty == null) continue;
 
                 switch (bounty.getSpec().job_type) {
                     case Assassination:
