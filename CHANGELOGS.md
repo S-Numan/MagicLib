@@ -10,6 +10,7 @@ Version 1.5.7
   - "Shiny" paintjobs only show up in NPC fleets only and are permanent (cannot be removed/changed).
 - Paintjob UI on refit screen now makes sounds.
 - Removed perf impact of checking if there's a completed achievement to show a notification for. 
+- `ShipKillsAchievement` now auto-generates the description and tooltip (configurable).
 
 **MagicSubsystems**
 - Improved clarity of text (contributed by @Ruddygreat).
