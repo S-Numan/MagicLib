@@ -119,3 +119,38 @@ fun ShipAPI.getForwardVector(): Vector2f {
     // Return the forward vector
     return Vector2f(x, y)
 }
+
+
+/**
+ * Joins strings in a list using different separators based on the number of elements.
+ *
+ * - For empty list: returns empty string
+ * - For single element: returns that element
+ * - For two elements: joins them with [twoElementSeparator]
+ * - For 3+ elements: joins all but last with [listSeparator], then adds last element with [manyElementsFinalSeparator]
+ *
+ * Example usage:
+ * ```kt
+ * listOf("apple").magicJoinToString() // "apple"
+ * listOf("apple", "banana").magicJoinToString() // "apple or banana"
+ * listOf("apple", "banana", "orange").magicJoinToString() // "apple, banana, or orange"
+ * ```
+ *
+ * @param listSeparator Separator used between elements in lists of 3+ items
+ * @param twoElementSeparator Separator used between exactly 2 items
+ * @param manyElementsFinalSeparator Separator used before final element in lists of 3+ items
+ * @return The joined string
+ */
+fun List<String>.magicJoinToString(
+    listSeparator: String = ", ",
+    twoElementSeparator: String = " or ",
+    manyElementsFinalSeparator: String = ", or ",
+    transform: ((String) -> String) = { it },
+): String {
+    return when (this.size) {
+        0 -> ""
+        1 -> transform(this.first())
+        2 -> "${transform(this.first())}${twoElementSeparator}${transform(this.last())}"
+        else -> "${this.dropLast(1).joinToString(listSeparator, transform = transform)}${manyElementsFinalSeparator}${transform(this.last())}"
+    }
+}

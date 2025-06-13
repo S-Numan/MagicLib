@@ -150,7 +150,7 @@ public class MagicAchievementManager {
         } else {
             logger.info("MagicLib achievements are disabled.");
             removeIntel();
-            saveAchievements(true);
+            saveAchievements(true, false);
 
             if (isSaveLoaded) {
                 Global.getSector().removeTransientScriptsOfClass(MagicAchievementRunner.class);
@@ -221,13 +221,13 @@ public class MagicAchievementManager {
     /**
      * This writes to disk.
      */
-    protected void saveAchievements(boolean printUnchangedResultToLog) {
+    protected void saveAchievements(boolean printUnchangedResultToLog, boolean forceSave) {
         JSONObject commonJson;
         JSONArray savedAchievements = new JSONArray();
 
         // Prevents accidentally wiping achievements if the feature is disabled on game load.
         // Also, no reason to save nothing anyway.
-        if (achievements.isEmpty()) {
+        if (!forceSave && achievements.isEmpty()) {
             return;
         }
 
@@ -246,7 +246,7 @@ public class MagicAchievementManager {
         try {
             newAchievementsJsonString = savedAchievements.toString(indent);
 
-            if (newAchievementsJsonString.equals(lastSavedJson)) {
+            if (!forceSave && newAchievementsJsonString.equals(lastSavedJson)) {
                 if (printUnchangedResultToLog) {
                     logger.info("Not saving achievements because they haven't changed.");
                 }
@@ -303,7 +303,7 @@ public class MagicAchievementManager {
         try {
             // Create file if it doesn't exist.
             if (!Global.getSettings().fileExistsInCommon(commonFilename)) {
-                saveAchievements(true);
+                saveAchievements(true, true);
             }
 
             try {
@@ -314,7 +314,7 @@ public class MagicAchievementManager {
                 logger.warn("Unable to load achievements from " + commonFilename + ", making a backup and remaking it.", ex);
                 Global.getSettings().writeTextFileToCommon(commonFilename + ".backup", Global.getSettings().readTextFileFromCommon(commonFilename));
                 Global.getSettings().deleteTextFileFromCommon(commonFilename);
-                saveAchievements(true);
+                saveAchievements(true, true);
                 commonJson = JSONUtils.loadCommonJSON(commonFilename);
                 savedAchievementsJson = commonJson.getJSONArray(achievementsJsonObjectKey);
             }
@@ -406,8 +406,14 @@ public class MagicAchievementManager {
         Map<String, MagicAchievement> newAchievementsById = new HashMap<>();
 
         for (MagicAchievementSpec spec : specs.values()) {
+            String script = spec.getScript();
+
+            if (script == null || script.isBlank()) {
+                script = MagicAchievement.class.getCanonicalName();
+            }
+
             try {
-                final Class<?> commandClass = Global.getSettings().getScriptClassLoader().loadClass(spec.getScript());
+                final Class<?> commandClass = Global.getSettings().getScriptClassLoader().loadClass(script);
                 if (!MagicAchievement.class.isAssignableFrom(commandClass)) {
                     throw new RuntimeException(String.format("%s does not extend %s", commandClass.getCanonicalName(), MagicAchievement.class.getCanonicalName()));
                 }
@@ -415,10 +421,10 @@ public class MagicAchievementManager {
                 MagicAchievement magicAchievement = (MagicAchievement) commandClass.newInstance();
                 magicAchievement.spec = spec;
                 newAchievementsById.put(spec.getId(), magicAchievement);
-                logger.info("Loaded achievement " + spec.getId() + " from " + spec.getModId() + " with script " + spec.getScript() + ".");
+                logger.info("Loaded achievement " + spec.getId() + " from " + spec.getModId() + " with script " + script + ".");
             } catch (Exception e) {
                 if (spec != null)
-                    logger.warn(String.format("Unable to load achievement '%s' because class '%s' didn't load!", spec.getId(), spec.getScript()), e);
+                    logger.warn(String.format("Unable to load achievement '%s' because class '%s' didn't load!", spec.getId(), script), e);
                 else
                     logger.warn("Unable to load achievement because spec was null! What are you doing?!", e);
             }
@@ -452,6 +458,9 @@ public class MagicAchievementManager {
                 try {
                     JSONObject item = modCsv.getJSONObject(i);
                     id = item.getString("id").trim();
+
+                    if (id.isBlank()) continue;
+
                     String name = item.getString("name").trim();
                     String description = item.getString("description").trim();
                     String tooltip = item.getString("tooltip").trim();

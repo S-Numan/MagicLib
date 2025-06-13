@@ -11,6 +11,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI
 import com.fs.starfarer.api.combat.WeaponAPI
 import com.fs.starfarer.api.fleet.FleetMemberAPI
 import com.fs.starfarer.api.graphics.SpriteAPI
+import com.fs.starfarer.api.util.IntervalUtil
 import com.fs.starfarer.combat.entities.ship.trackers.MultiBarrelRecoilTracker
 import org.dark.shaders.util.ShaderLib
 import org.json.JSONArray
@@ -42,6 +43,7 @@ object MagicPaintjobManager {
     private val unlockedPaintjobsInner = mutableSetOf<String>()
     private val paintjobsInner = mutableListOf<MagicPaintjobSpec>()
     private val completedPaintjobIdsThatUserHasBeenNotifiedFor = mutableListOf<String>()
+    private val advanceIntervalUtil = IntervalUtil(1f, 1f)
 
     private val weaponPaintjobsInner = mutableListOf<MagicWeaponPaintjobSpec>()
 
@@ -116,7 +118,9 @@ object MagicPaintjobManager {
         loadUnlockedPaintjobs()
         initIntel()
 
-        Global.getSector().addTransientListener(MagicPaintjobShinyAdder())
+        val shinyAdder = MagicPaintjobShinyAdder()
+        shinyAdder.checkAndApplyShiniesToAllFleetsInPlayerLocation()
+        Global.getSector().addTransientScript(shinyAdder)
         if (!Global.getSector().hasTransientScript(MagicPaintjobRunner::class.java)) {
             Global.getSector().addTransientScript(MagicPaintjobRunner())
         }
@@ -331,12 +335,12 @@ object MagicPaintjobManager {
                     return@forEach
                 }
 
-                /* TODO: Uncomment this for 0.98
+                /* TODO: Uncomment this for 0.98 */
                 if (!Global.getSettings().actuallyAllWeaponSpecs.any { it.weaponId in weaponIds }) {
                     logger.warn("Weapon Paintjob with id: $id has no valid weaponId's, skipping.")
                     return@forEach
                 }
-                */
+
                 val spriteMap = weaponPJEntry.getString("spriteMap").split(",").mapNotNull { mapEntry ->
                     val parts = mapEntry.split("->")
                     if (parts.size == 2) {
@@ -679,24 +683,29 @@ object MagicPaintjobManager {
     @JvmStatic
     fun advance(amount: Float) {
         if (!isEnabled) return
-        val intel = getIntel() ?: return
 
-        // For all paintjobs that were just unlocked, show intel update.
-        // Only notify intel if in campaign and not showing a dialog.
-        // If in combat, the intel will be shown when the player returns to the campaign.
-        if (Global.getCurrentState() == GameState.CAMPAIGN && Global.getSector().campaignUI.currentInteractionDialog == null) {
-            for (paintjob in getPaintjobs()) {
-                if (paintjob.isUnlocked() && !completedPaintjobIdsThatUserHasBeenNotifiedFor.contains(paintjob.id)) {
-                    // Player has unlocked a new paintjob! Let's notify them.
+        advanceIntervalUtil.advance(amount)
 
-                    try {
-                        intel.tempPaintjobForIntelNotification = paintjob
-                        intel.sendUpdateIfPlayerHasIntel(null, false, false)
-                        intel.tempPaintjobForIntelNotification = null
+        if (advanceIntervalUtil.intervalElapsed()) {
+            val intel = getIntel() ?: return
+
+            // For all paintjobs that were just unlocked, show intel update.
+            // Only notify intel if in campaign and not showing a dialog.
+            // If in combat, the intel will be shown when the player returns to the campaign.
+            if (Global.getCurrentState() == GameState.CAMPAIGN && Global.getSector().campaignUI.currentInteractionDialog == null) {
+                for (paintjob in getPaintjobs()) {
+                    if (paintjob.isUnlocked() && !completedPaintjobIdsThatUserHasBeenNotifiedFor.contains(paintjob.id)) {
+                        // Player has unlocked a new paintjob! Let's notify them.
+
+                        try {
+                            intel.tempPaintjobForIntelNotification = paintjob
+                            intel.sendUpdateIfPlayerHasIntel(null, false, false)
+                            intel.tempPaintjobForIntelNotification = null
 //                        MagicAchievementManager.playSoundEffect(paintjob)
-                        completedPaintjobIdsThatUserHasBeenNotifiedFor.add(paintjob.id)
-                    } catch (e: java.lang.Exception) {
-                        logger.w(ex = e, message = { "Unable to notify intel of paintjob " + paintjob.id })
+                            completedPaintjobIdsThatUserHasBeenNotifiedFor.add(paintjob.id)
+                        } catch (e: java.lang.Exception) {
+                            logger.w(ex = e, message = { "Unable to notify intel of paintjob " + paintjob.id })
+                        }
                     }
                 }
             }

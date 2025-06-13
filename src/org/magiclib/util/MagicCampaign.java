@@ -157,7 +157,7 @@ public class MagicCampaign {
             // todo: check if order matters
             if (sMods != null) {
                 for (int k = 0; k < sMods.length(); k++) {
-                    String sModId = hullMods.getString(k);
+                    String sModId = sMods.getString(k);
                     variant.addPermaMod(sModId, true);
 //                    variant.addPermaMod(sModId);
                     variant.addMod(sModId);
@@ -165,7 +165,7 @@ public class MagicCampaign {
             }
             if (permaMods != null) {
                 for (int j = 0; j < permaMods.length(); j++) {
-                    String permaModId = hullMods.getString(j);
+                    String permaModId = permaMods.getString(j);
                     variant.addPermaMod(permaModId);
                     if (!variant.getHullMods().contains(permaModId)) {
                         variant.addMod(permaModId);

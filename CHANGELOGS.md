@@ -1,3 +1,38 @@
+Version 1.5.7
+
+**MagicBounty**
+- Fixed bounties that use existing_target_memkey (by Numan).
+- Fixed shiny paintjobs not getting added due to vanilla wonkiness.
+- Accepted bounty intel is now marked as important.
+
+**MagicAchievements**
+- Increased "shiny" paintjob spawn rate to 1 in 25 (was 1 in 50).
+  - "Shiny" paintjobs only show up in NPC fleets only and are permanent (cannot be removed/changed).
+- Paintjob UI on refit screen now makes sounds.
+- Removed perf impact of checking if there's a completed achievement to show a notification for. 
+- `ShipKillsAchievement` now auto-generates the description and tooltip (configurable).
+
+**MagicSubsystems**
+- Improved clarity of text (contributed by @Ruddygreat).
+
+**Other**
+- Added `List<String>.magicJoinToString` as a Kotlin extension method, which joins strings in a list using different separators based on the number of elements
+
+Version 1.5.6
+
+**MagicCampaign**
+- Fixed a bug from 2022 where `MagicCampaign.loadVariant` did not load `permaMods`/`sMods` correctly (reported by arbiter787).
+
+**MagicAchievements**
+- Fixed "find/collect/see/install/etc X number of something" achievements not completing.
+
+Version 1.5.5
+
+**MagicAchievements**
+- sorry
+- Fixed achievements file not getting created if missing.
+  - This prevented achievements from loading, crashing mods e.g. AotD: VoK.
+
 Version 1.5.4
 
 **MagicAchievements**

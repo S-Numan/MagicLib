@@ -13,7 +13,7 @@ open class MagicAchievementSpec(
     var name: String,
     var description: String,
     var tooltip: String?,
-    var script: String,
+    var script: String?,
     var image: String?,
     var spoilerLevel: MagicAchievementSpoilerLevel,
     var rarity: MagicAchievementRarity,
@@ -42,7 +42,7 @@ open class MagicAchievementSpec(
             val name = json.getString("name")
             val description = json.getString("description")
             val tooltip = json.optString("tooltip", null)
-            val script = json.getString("script")
+            val script = json.optString("script", null)
             val image = json.optString("image", null)
             val spoilerLevel = MagicAchievementSpoilerLevel.valueOf(
                 json.optString("spoilerLevel", "VISIBLE").lowercase().let { Misc.ucFirst(it) })

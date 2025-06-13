@@ -10,14 +10,14 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://C:/Program Files (x86)/Fractal Softworks/Starsector/mods/Console Commands/jars" />
+          <root url="file://$STARSECTOR_INSTALL_DIR$/mods/Console Commands/jars" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://C:/Program Files (x86)/Fractal Softworks/Starsector/mods/Console Commands/jars" />
+          <root url="file://$STARSECTOR_INSTALL_DIR$/mods/Console Commands/jars" />
         </SOURCES>
-        <jarDirectory url="file://C:/Program Files (x86)/Fractal Softworks/Starsector/mods/Console Commands/jars" recursive="false" />
-        <jarDirectory url="file://C:/Program Files (x86)/Fractal Softworks/Starsector/mods/Console Commands/jars" recursive="false" type="SOURCES" />
+        <jarDirectory url="file://$STARSECTOR_INSTALL_DIR$/mods/Console Commands/jars" recursive="false" />
+        <jarDirectory url="file://$STARSECTOR_INSTALL_DIR$/mods/Console Commands/jars" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="MagicLib-Kotlin" />
@@ -47,7 +47,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/Program Files (x86)/Fractal Softworks/Starsector/mods/zz GraphicsLib-1.9.0/jars/Graphics.jar!/" />
+          <root url="jar://$STARSECTOR_INSTALL_DIR$/mods/zz GraphicsLib-1.9.0/jars/Graphics.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -65,5 +65,17 @@
     </orderEntry>
     <orderEntry type="library" name="Kotlin-Runtime" level="project" />
     <orderEntry type="library" name="LazyLib" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../MagicAchievementsVanillaPack/jars" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/../MagicAchievementsVanillaPack/src" />
+        </SOURCES>
+        <jarDirectory url="file://$MODULE_DIR$/../MagicAchievementsVanillaPack/jars" recursive="false" />
+      </library>
+    </orderEntry>
   </component>
 </module>

@@ -195,6 +195,7 @@ public final class ActiveBounty {
         if (intelForBounty == null) {
             intelForBounty = new MagicBountyIntel(bountyKey);
             intelManager.addIntel(intelForBounty);
+            intelForBounty.setImportant(true);
         }
 
         if (MagicTxt.nullStringIfEmpty(spec.job_memKey) != null) {

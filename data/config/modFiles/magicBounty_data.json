@@ -74,6 +74,7 @@
 		"fleet_flagship_alwaysRecoverable":false,
 		"fleet_preset_ships":{
 			"tempest_Attack":2,
+			#"asdf":1,
 			#"shade_Assault":1,
 			#"omen_PD":2,
 			"revenant_Elite":1,
