@@ -7,11 +7,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Kotlin-Runtime" level="project" />
+    <orderEntry type="library" name="lw_Console" level="project" />
+    <orderEntry type="library" name="VayraSector" level="project" />
     <orderEntry type="library" name="LunaLib" level="project" />
     <orderEntry type="library" name="starfarer-api" level="project" />
-    <orderEntry type="library" name="Vayra's Sector" level="project" />
-    <orderEntry type="library" name="jars-ConsoleCommands" level="project" />
-    <orderEntry type="library" name="Kotlin-Runtime" level="project" />
+    <orderEntry type="library" name="LazyLib-Console" level="project" />
+    <orderEntry type="library" name="LazyLib-Kotlin" level="project" />
     <orderEntry type="library" name="LazyLib" level="project" />
   </component>
 </module>
