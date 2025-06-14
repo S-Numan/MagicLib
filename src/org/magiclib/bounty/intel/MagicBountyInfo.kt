@@ -496,6 +496,11 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
         val location = getLocationIfBountyIsActive()
         if (location is StarSystemAPI) {
 
+            fun setupSystemParams(params: MapParams, location: StarSystemAPI) {
+                params.showSystem(location)
+                params.arrows.add(IntelInfoPlugin.ArrowData(Global.getSector().playerFleet, location.center))
+            }
+
             val params = MapParams()
             val w = targetInfoTooltip.widthSoFar
             val h = (w / 1.6f).roundToInt().toFloat()
@@ -503,8 +508,7 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
             if (bountySpec.job_show_distance != ShowDistance.None) {
                 when (bountySpec.job_show_distance) {
                     ShowDistance.Exact -> {
-                        params.showSystem(location)
-                        params.arrows.add(IntelInfoPlugin.ArrowData(Global.getSector().playerFleet, location.center))
+                        setupSystemParams(params, location)
 
                         targetInfoTooltip.addPara(
                             createLocationPreciseText(bounty),
@@ -515,8 +519,7 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
                     }
 
                     ShowDistance.System -> {
-                        params.showSystem(location)
-                        params.arrows.add(IntelInfoPlugin.ArrowData(Global.getSector().playerFleet, location.center))
+                        setupSystemParams(params, location)
 
                         targetInfoTooltip.addPara(
                             MagicTxt.getString("mb_distance_system"),
@@ -549,11 +552,14 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
                     ShowDistance.Distance -> {
                         params.filterData.names = false
 
-                        targetInfoTooltip.addPara(MagicTxt.getString("mb_distance"),
+                        val distance = Misc.getDistanceLY(Global.getSector().playerFleet, bounty.fleetSpawnLocation).roundToInt()
+                        targetInfoTooltip.addPara(
+                            MagicTxt.getString("mb_distance"),
                             10f,
                             Misc.getTextColor(),
                             Misc.getHighlightColor(),
-                            Misc.getDistanceLY(Global.getSector().playerFleet, bounty.fleetSpawnLocation).roundToInt().toString());
+                            distance.toString()
+                        )
                     }
 
                     else -> {
@@ -569,13 +575,11 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
                             val token = createConstellationCenterToken(constellation)
                             if (token != null) {
                                 params.arrows.add(IntelInfoPlugin.ArrowData(Global.getSector().playerFleet, token))
-
                                 params.markers = listOf(MarkerData(token.location, Global.getSector().hyperspace))
                             }
 
                         } else {
-                            params.showSystem(location)
-                            params.arrows.add(IntelInfoPlugin.ArrowData(Global.getSector().playerFleet, location.center))
+                            setupSystemParams(params, location)
                         }
 
                         targetInfoTooltip.addPara(
