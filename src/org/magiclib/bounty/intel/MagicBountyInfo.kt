@@ -494,7 +494,8 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
         }
 
         val location = getLocationIfBountyIsActive()
-        if (location is StarSystemAPI) {
+        if (location is StarSystemAPI
+            && bountySpec.job_show_distance != ShowDistance.None) {
 
             fun setupSystemParams(params: MapParams, location: StarSystemAPI) {
                 params.showSystem(location)
@@ -505,90 +506,88 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
             val w = targetInfoTooltip.widthSoFar
             val h = (w / 1.6f).roundToInt().toFloat()
 
-            if (bountySpec.job_show_distance != ShowDistance.None) {
-                when (bountySpec.job_show_distance) {
-                    ShowDistance.Exact -> {
-                        setupSystemParams(params, location)
+            when (bountySpec.job_show_distance) {
+                ShowDistance.Exact -> {
+                    setupSystemParams(params, location)
 
-                        targetInfoTooltip.addPara(
-                            createLocationPreciseText(bounty),
-                            10f,
-                            location.lightColor,
-                            bounty.fleetSpawnLocation.starSystem.nameWithLowercaseType
-                        )
+                    targetInfoTooltip.addPara(
+                        createLocationPreciseText(bounty),
+                        10f,
+                        location.lightColor,
+                        bounty.fleetSpawnLocation.starSystem.nameWithLowercaseType
+                    )
+                }
+
+                ShowDistance.System -> {
+                    setupSystemParams(params, location)
+
+                    targetInfoTooltip.addPara(
+                        MagicTxt.getString("mb_distance_system"),
+                        10f,
+                        arrayOf(Misc.getTextColor(), location.lightColor),
+                        MagicTxt.getString("mb_distance_they"),
+                        bounty.fleetSpawnLocation.starSystem.nameWithLowercaseType
+                    )
+                }
+
+                /*ShowDistance.Vague -> {
+                    params.filterData.names = false
+
+                    val distance = bounty.fleetSpawnLocation.containingLocation.location.length()
+                    var vague = MagicTxt.getString("mb_distance_core")
+                    if (distance > MagicVariables.getSectorSize() * 0.6f) {
+                        vague = MagicTxt.getString("mb_distance_far")
+                    } else if (distance > MagicVariables.getSectorSize() * 0.33f) {
+                        vague = MagicTxt.getString("mb_distance_close")
                     }
+                    targetInfoTooltip.addPara(
+                        MagicTxt.getString("mb_distance_vague"),
+                        10f,
+                        Misc.getTextColor(),
+                        Misc.getHighlightColor(),
+                        vague
+                    )
+                }*///Commented out due to seeming to be a bad mechanic with the current implementation of the bounty board. Given pre-existing use of it in some mods (such as Seeker), enabling this on an update may cause issues for some users.
 
-                    ShowDistance.System -> {
-                        setupSystemParams(params, location)
+                ShowDistance.Distance -> {
+                    params.filterData.names = false
 
-                        targetInfoTooltip.addPara(
-                            MagicTxt.getString("mb_distance_system"),
-                            10f,
-                            arrayOf(Misc.getTextColor(), location.lightColor),
-                            MagicTxt.getString("mb_distance_they"),
-                            bounty.fleetSpawnLocation.starSystem.nameWithLowercaseType
-                        )
-                    }
+                    val distanceLY = Misc.getDistanceLY(Global.getSector().playerFleet, bounty.fleetSpawnLocation).roundToInt()
+                    targetInfoTooltip.addPara(
+                        MagicTxt.getString("mb_distance"),
+                        10f,
+                        Misc.getTextColor(),
+                        Misc.getHighlightColor(),
+                        distanceLY.toString()
+                    )
+                }
 
-                    /*ShowDistance.Vague -> {
+                else -> {
+                    val constellation = location.constellation
+                    if(constellation != null) {
+                        //Show constellation
+                        params.filterData.constellations = true
                         params.filterData.names = false
+                        params.showConsellations = setOf(constellation)
+                        params.smallConstellations = true
 
-                        val distance = bounty.fleetSpawnLocation.containingLocation.location.length()
-                        var vague = MagicTxt.getString("mb_distance_core")
-                        if (distance > MagicVariables.getSectorSize() * 0.6f) {
-                            vague = MagicTxt.getString("mb_distance_far")
-                        } else if (distance > MagicVariables.getSectorSize() * 0.33f) {
-                            vague = MagicTxt.getString("mb_distance_close")
-                        }
-                        targetInfoTooltip.addPara(
-                            MagicTxt.getString("mb_distance_vague"),
-                            10f,
-                            Misc.getTextColor(),
-                            Misc.getHighlightColor(),
-                            vague
-                        )
-                    }*///Commented out due to seeming to be a bad mechanic with the current implementation of the bounty board. Given pre-existing use of it in some mods (such as Seeker), enabling this on an update may cause issues for some users.
-
-                    ShowDistance.Distance -> {
-                        params.filterData.names = false
-
-                        val distance = Misc.getDistanceLY(Global.getSector().playerFleet, bounty.fleetSpawnLocation).roundToInt()
-                        targetInfoTooltip.addPara(
-                            MagicTxt.getString("mb_distance"),
-                            10f,
-                            Misc.getTextColor(),
-                            Misc.getHighlightColor(),
-                            distance.toString()
-                        )
-                    }
-
-                    else -> {
-                        val constellation = location.constellation
-                        if(constellation != null) {
-                            //Show constellation
-                            params.filterData.constellations = true
-                            params.filterData.names = false
-                            params.showConsellations = setOf(constellation)
-                            params.smallConstellations = true
-
-                            //Point towards center of constellation
-                            val token = createConstellationCenterToken(constellation)
-                            if (token != null) {
-                                params.arrows.add(IntelInfoPlugin.ArrowData(Global.getSector().playerFleet, token))
-                                params.markers = listOf(MarkerData(token.location, Global.getSector().hyperspace))
-                            }
-
-                        } else {
-                            setupSystemParams(params, location)
+                        //Point towards center of constellation
+                        val token = createConstellationCenterToken(constellation)
+                        if (token != null) {
+                            params.arrows.add(IntelInfoPlugin.ArrowData(Global.getSector().playerFleet, token))
+                            params.markers = listOf(MarkerData(token.location, Global.getSector().hyperspace))
                         }
 
-                        targetInfoTooltip.addPara(
-                            createLocationEstimateText(bounty),
-                            10f,
-                            location.lightColor,
-                            BreadcrumbSpecial.getLocationDescription(bounty.fleetSpawnLocation, false)
-                        )
+                    } else {
+                        setupSystemParams(params, location)
                     }
+
+                    targetInfoTooltip.addPara(
+                        createLocationEstimateText(bounty),
+                        10f,
+                        location.lightColor,
+                        BreadcrumbSpecial.getLocationDescription(bounty.fleetSpawnLocation, false)
+                    )
                 }
             }
 
