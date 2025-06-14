@@ -25,15 +25,21 @@ public final class MagicBountyBattleListener implements FleetEventListener {
      */
     private boolean isDone = false;
 
+    @NotNull
+    private Set<String> bountyKeys;
+
     @Deprecated
-    @NotNull
-    private final String bountyKey;
+    private String bountyKey;
 
-    @NotNull
-    private final Set<String> bountyKeys;
+    public MagicBountyBattleListener(@NotNull Set<String> bountyKeys) {
+        this.bountyKeys = bountyKeys;
+    }
 
+    /**
+     * Use `MagicBountyBattleListener(Set<String> bountyKeys)` instead.
+     */
+    @Deprecated
     public MagicBountyBattleListener(@NotNull String bountyKey) {
-        this.bountyKey = bountyKey;
         this.bountyKeys = new HashSet<>();
         this.bountyKeys.add(bountyKey);
     }
@@ -42,6 +48,7 @@ public final class MagicBountyBattleListener implements FleetEventListener {
      * If a key is already present, does nothing.
      */
     public void addBountyKey(@NotNull String bountyKey) {
+        handleBackwardsCompat();
         this.bountyKeys.add(bountyKey);
     }
 
@@ -53,6 +60,9 @@ public final class MagicBountyBattleListener implements FleetEventListener {
         if (isDone) {
             return;
         }
+
+        // Backwards compatibility.
+        handleBackwardsCompat();
 
         fleet.removeEventListener(this);
 
@@ -88,6 +98,8 @@ public final class MagicBountyBattleListener implements FleetEventListener {
      */
     @Override
     public void reportBattleOccurred(CampaignFleetAPI bountyFleet, CampaignFleetAPI winningFleet, BattleAPI battle) {
+        handleBackwardsCompat();
+
         ActiveBounty firstAcceptedBountyOnFleet = null;
 
         for (String key : bountyKeys) {
@@ -197,7 +209,7 @@ public final class MagicBountyBattleListener implements FleetEventListener {
             }
 
             if (bountyFleet.getFleetSizeCount() <= 0) {
-                // Fleet is totally dead, player is not gonna be starting another battle to finish an Obliteration bounty.
+                // Fleet is totally dead, player is not gonna be starting another battle to finish another bounty on this fleet, so cancel out the listener.
                 isDone = true;
             } else {
                 // Handle the case where a battle occurred but player didn't complete all bounties.
@@ -217,6 +229,19 @@ public final class MagicBountyBattleListener implements FleetEventListener {
                     isDone = true;
                 }
             }
+        }
+    }
+
+    /**
+     * If restoring a save from before `bountyKeys` was added, migrate `bountyKey` to `bountyKeys`.
+     */
+    private void handleBackwardsCompat() {
+        if (bountyKeys == null) {
+            bountyKeys = new HashSet<>();
+        }
+
+        if (bountyKey != null) {
+            bountyKeys.add(bountyKey);
         }
     }
 }
