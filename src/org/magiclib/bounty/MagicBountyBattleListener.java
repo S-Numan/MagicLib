@@ -241,7 +241,7 @@ public final class MagicBountyBattleListener implements FleetEventListener {
         }
 
         if (bountyKey != null) {
-            bountyKeys.remove(bountyKey);
+            bountyKeys.add(bountyKey);
         }
     }
 }
