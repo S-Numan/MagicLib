@@ -96,6 +96,7 @@ abstract class FilteredListPanelPlugin<T : Filterable<T>>(parentPanel: CustomPan
             }
             lastItem = filterPanel
         }
+        filterContainerTooltip.addSpacer(1f) // For some reason the tooltip contents fail to show without this
         filterContainerPanelLocal.addUIElement(filterContainerTooltip).inBMid(4f)
 
         outerPanel!!.addComponent(filterContainerPanelLocal).inTMid(46f)
