@@ -8,10 +8,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="MagicLib-Kotlin" />
-    <orderEntry type="library" name="LunaLib" level="project" />
-    <orderEntry type="library" name="SWP" level="project" />
-    <orderEntry type="library" name="starfarer-api" level="project" />
-    <orderEntry type="library" name="Kotlin-Runtime" level="project" />
+    <orderEntry type="library" name="starfarer.api" level="project" />
+    <orderEntry type="library" name="lw_Console" level="project" />
+    <orderEntry type="library" name="Graphics" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -24,11 +23,11 @@
         <jarDirectory url="file://$MODULE_DIR$/../MagicAchievementsVanillaPack/jars" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Graphics" level="project" />
-    <orderEntry type="library" name="lw_Console" level="project" />
-    <orderEntry type="library" name="VayraSector" level="project" />
-    <orderEntry type="library" name="LazyLib-Kotlin" level="project" />
-    <orderEntry type="library" name="LazyLib-javadoc" level="project" />
+    <orderEntry type="library" name="LunaLib" level="project" />
     <orderEntry type="library" name="LazyLib" level="project" />
+    <orderEntry type="library" name="SWP" level="project" />
+    <orderEntry type="library" name="VayraSector" level="project" />
+    <orderEntry type="library" name="Kotlin-Runtime" level="project" />
+    <orderEntry type="library" name="LazyLib-Kotlin" level="project" />
   </component>
 </module>
