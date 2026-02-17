@@ -19,6 +19,7 @@ import org.magiclib.bounty.MagicBountyLoader.*
 import org.magiclib.bounty.MagicBountySpec
 import org.magiclib.bounty.MagicBountyUtilsInternal
 import org.magiclib.bounty.ui.InteractiveUIPanelPlugin
+import org.magiclib.kotlin.interpolateColor
 import org.magiclib.kotlin.setAlpha
 import org.magiclib.kotlin.ucFirst
 import org.magiclib.util.MagicCampaign
@@ -33,6 +34,12 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
         get() = MagicBountyCoordinator.getInstance().getActiveBounty(bountyKey)
     var holdingPanel: CustomPanelAPI? = null
     var panelThatCanBeRemoved: CustomPanelAPI? = null
+
+    var customColor: Color? = Color(255, 255, 255, 0)
+    override fun getCustomPanelColor(): Color? = customColor
+    override fun setCustomPanelColor(value: Color?) {
+        customColor = value
+    }
 
     override fun getBountyId(): String {
         return bountyKey
@@ -62,18 +69,47 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
         return activeBounty?.fleetSpawnLocation?.containingLocation
     }
 
-    override fun getSortIndex(): Int {
-        return when (activeBounty?.stage) {
-            ActiveBounty.Stage.Accepted -> 0
-            ActiveBounty.Stage.NotAccepted -> 1
-            ActiveBounty.Stage.Succeeded -> 3
-            ActiveBounty.Stage.ExpiredAfterAccepting -> 4
-            ActiveBounty.Stage.ExpiredWithoutAccepting -> 4
-            ActiveBounty.Stage.FailedSalvagedFlagship -> 4
-            ActiveBounty.Stage.EndedWithoutPlayerInvolvement -> 4
-            ActiveBounty.Stage.Dismissed -> 4
-            else -> 1
+    override fun getPlayerKnownDistanceIfBountyIsActive(): Float? {
+        getLocationIfBountyIsActive() ?: return null
+        val bounty = activeBounty ?: return null
+        val playerFleet = Global.getSector().playerFleet
+
+        return when (bountySpec.job_show_distance) {
+            //ShowDistance.Vague,
+            ShowDistance.None-> null
+
+            ShowDistance.Distance,
+            ShowDistance.Exact,
+            ShowDistance.System ->
+                Misc.getDistanceLY(playerFleet, bounty.fleetSpawnLocation)
+
+            else -> {
+                val token = bounty.fleet.constellation?.let { createConstellationCenterToken(it) } ?: bounty.fleetSpawnLocation
+                Misc.getDistanceLY(playerFleet, token)
+            }
         }
+    }
+
+    private var sortIndexOffset: Int = 0
+    override fun getSortIndexOffset(): Int = sortIndexOffset
+    override fun setSortIndexOffset(value: Int) {
+        sortIndexOffset = value
+    }
+
+    override fun getSortIndex(): Int {
+        val baseIndex = when (activeBounty?.stage) {
+            ActiveBounty.Stage.Accepted -> 0
+            ActiveBounty.Stage.NotAccepted -> 100000
+            ActiveBounty.Stage.Succeeded -> 300000
+            ActiveBounty.Stage.ExpiredAfterAccepting -> 400000
+            ActiveBounty.Stage.ExpiredWithoutAccepting -> 400000
+            ActiveBounty.Stage.FailedSalvagedFlagship -> 400000
+            ActiveBounty.Stage.EndedWithoutPlayerInvolvement -> 400000
+            ActiveBounty.Stage.Dismissed -> 400000
+            else -> 100000
+        }
+
+        return baseIndex + sortIndexOffset
     }
 
     override fun notifyWhenAvailable(): Boolean {
@@ -228,6 +264,15 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
             plugin.baseBgColor = Misc.getDarkHighlightColor().setAlpha(45)
             plugin.hoveredColor = Misc.getDarkHighlightColor().setAlpha(75)
             plugin.selectedColor = Misc.getDarkHighlightColor().setAlpha(125)
+        } else if (customColor != null) {
+            val t = customColor!!.alpha / 255f
+            plugin.baseBgColor = customColor!!.setAlpha(customColor!!.alpha / 2)
+            plugin.hoveredColor = plugin.defaultHoveredColor.interpolateColor(customColor!!, t)
+            plugin.selectedColor = plugin.defaultSelectedColor.interpolateColor(customColor!!, t)
+        } else {
+            plugin.baseBgColor = plugin.defaultBgColor
+            plugin.hoveredColor = plugin.defaultHoveredColor
+            plugin.selectedColor = plugin.defaultSelectedColor
         }
     }
 
@@ -289,7 +334,9 @@ open class MagicBountyInfo(val bountyKey: String, val bountySpec: MagicBountySpe
 
                 var location: SectorEntityToken? = null
                 if(dis == ShowDistance.Exact || dis == ShowDistance.System) {
-                    location = Misc.getDistressJumpPoint(activeBountyLocal.fleet.containingLocation as StarSystemAPI)
+                    val system = activeBountyLocal.fleet.containingLocation as? StarSystemAPI
+                    if(system != null)
+                        location = Misc.getDistressJumpPoint(system)
                 } else {
                     val constellation = activeBountyLocal.fleet.constellation
                     if(constellation != null)
