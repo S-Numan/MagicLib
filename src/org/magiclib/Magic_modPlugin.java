@@ -5,6 +5,7 @@ import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorAPI;
 import com.thoughtworks.xstream.XStream;
+import org.json.JSONException;
 import org.magiclib.util.memberMemory.MemberMemoryManager;
 import org.lwjgl.util.vector.Vector2f;
 import org.magiclib.achievements.MagicAchievementManager;
@@ -77,6 +78,15 @@ public class Magic_modPlugin extends BaseModPlugin {
         MagicAchievementManager.getInstance().onApplicationLoad();
 
         MagicPaintjobManager.onApplicationLoad();
+
+        String errorVariantID = Global.getSettings().getString("errorShipVariant");
+
+        if ("nebula_Standard".equals(errorVariantID)) { // If errorShipVariant is unmodified
+            if (Global.getSettings().doesVariantExist("nebula_Error")) { // Assure custom variant exists
+                try { Global.getSettings().getSettingsJSON().put("errorShipVariant", "magiclib_nebula_Error"); } // Set new errorShipVariant
+                catch (JSONException ignored) {} // This isn't critical behavior, so no need to do anything if it did not work
+            }
+        }
 
         MagicSubsystemsManager.initialize();
     }
