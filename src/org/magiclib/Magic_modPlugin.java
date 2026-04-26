@@ -5,6 +5,7 @@ import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorAPI;
 import com.thoughtworks.xstream.XStream;
+import org.magiclib.paintjobs.appliers.MagicPaintjobCampaignApplier;
 import org.json.JSONException;
 import org.magiclib.util.memberMemory.MemberMemoryManager;
 import org.lwjgl.util.vector.Vector2f;
@@ -128,6 +129,7 @@ public class Magic_modPlugin extends BaseModPlugin {
         SectorAPI sector = Global.getSector();
         if (sector != null) {
             sector.addTransientScript(new MagicPaintjobCampaignRefitAdder());
+            sector.addTransientScript(new MagicPaintjobCampaignApplier());
             sector.addTransientListener(new MagicIndustryItemWrangler());
             sector.addTransientScript(new MagicCampaignTrailPlugin());
         }
