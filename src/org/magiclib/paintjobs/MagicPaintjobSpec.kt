@@ -35,7 +35,7 @@ data class MagicPaintjobSpec @JvmOverloads constructor(
     val isHidden: Boolean
         get() = hidden
 
-    val isUnlockable = !isShiny
+    val isUnlockable = !isShiny && !isHidden
 
     data class PaintjobEngineSpec(
         var color: Color?,
