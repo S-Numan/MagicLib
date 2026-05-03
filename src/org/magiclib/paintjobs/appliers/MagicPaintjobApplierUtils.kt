@@ -133,6 +133,19 @@ internal object MagicPaintjobApplierUtils {
                 }
             }
         }
+
+        // Decoration Weapons
+        // In this context, weapon rendering is done in CampaignFleetMemberView.renderWeapons. There, it creates a new sprite and assigns a new texture from the WeaponSpec every frame. This is done from a FleetMember input.
+        // No editable sprite is stored anywhere. This makes it very very hard to apply a paintjob.
+        /*
+        member.hullSpec.builtInWeapons.forEach { weapon ->
+            val paintjobFamily = MagicPaintjobManager.getCurrentShipPaintjob(member)?.paintjobFamily ?: return@forEach
+
+            val weaponSpec = member.variant.getWeaponSpec(weapon.key)
+            val weaponPaintjobs = MagicPaintjobManager.getPaintjobsForWeapon(weaponSpec.weaponId, paintjobFamily)
+            val weaponPaintjob = weaponPaintjobs.getOrNull(0) ?: return@forEach
+        }
+        */
     }
 
     private fun makeNewSpriteToReplace(
