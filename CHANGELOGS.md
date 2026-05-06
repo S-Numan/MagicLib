@@ -16,6 +16,7 @@ Version 1.5.7
 - Paintjob UI on refit screen now makes sounds.
 - Removed perf impact of checking if there's a completed achievement to show a notification for. 
 - `ShipKillsAchievement` now auto-generates the description and tooltip (configurable).
+- Fix possible 'ShipKillsAchievement' game crash.
 
 **MagicPaintjobs**
 - Fixed game crashing if paintjob sprite did not exist or was not accessable.
