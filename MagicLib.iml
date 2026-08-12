@@ -7,7 +7,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="MagicLib-Kotlin" />
     <orderEntry type="library" name="starfarer.api" level="project" />
     <orderEntry type="library" name="lw_Console" level="project" />
     <orderEntry type="library" name="Graphics" level="project" />
