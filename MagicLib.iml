@@ -26,7 +26,6 @@
     <orderEntry type="library" name="LunaLib" level="project" />
     <orderEntry type="library" name="LazyLib" level="project" />
     <orderEntry type="library" name="SWP" level="project" />
-    <orderEntry type="library" name="VayraSector" level="project" />
     <orderEntry type="library" name="Kotlin-Runtime" level="project" />
     <orderEntry type="library" name="LazyLib-Kotlin" level="project" />
   </component>
