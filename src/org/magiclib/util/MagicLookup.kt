@@ -24,8 +24,23 @@ import org.magiclib.util.internal.MiscellaneousUtil.findMissingElements
  * Populated by [setup] on first use; must not be accessed before `onApplicationLoad`.
  */
 object MagicLookup {
+    fun logMemory(tag: String = "") {
+        val rt = Runtime.getRuntime()
+        val mb = 1024L * 1024L
+        val used = (rt.totalMemory() - rt.freeMemory()) / mb
+        val allocated = rt.totalMemory() / mb
+        val max = rt.maxMemory() / mb
+
+        Global.getLogger(MagicLookup::class.java)
+            .warn("[$tag] Memory: used=${used}MB, allocated=${allocated}MB, max=${max}MB")
+    }
+
+    private var init = false
+    fun isSetup() = init
     init {
+        logMemory("before load")
         setup()
+        logMemory("after load")
     }
 
     private lateinit var allDMods: Set<String>
@@ -43,16 +58,26 @@ object MagicLookup {
     private lateinit var IDToSkill: Map<String, SkillSpecAPI>
     private lateinit var allFactionIDs: Set<String>
     private lateinit var IDToShipSystem: Map<String, ShipSystemSpecAPI>
-    private var init = false
-    fun isSetup() = init
+    private lateinit var modIDToElement: Map<String, ModElements>
+
+    private data class ModElements(
+        val hullspecs: Map<String, ShipHullSpecAPI>,
+        val hullmods: Map<String, HullModSpecAPI>,
+        val weapons: Map<String, WeaponSpecAPI>,
+        val wings: Map<String, FighterWingSpecAPI>,
+        val skills: Map<String, SkillSpecAPI>,
+        val shipSystems: Map<String, ShipSystemSpecAPI>
+    )
 
     internal fun setup() {
         val settings = Global.getSettings()
 
         hullIDSet = settings.allShipHullSpecs.map { it.hullId }.toSet()
 
-        if (hullIDSet.isEmpty())
+        if (hullIDSet.isEmpty()) {
             Global.getLogger(this.javaClass).error("No hulls found. It is very likely that the '${this.javaClass.name}' object was accessed before onApplicationLoad. Avoid calling ${this.javaClass.name} before onApplicationLoad")
+            return
+        }
 
         allDMods = settings.allHullModSpecs
             .asSequence()
@@ -71,8 +96,8 @@ object MagicLookup {
         IDToHullMod = settings.allHullModSpecs.associateBy { it.id }
         IDToWeapon = settings.actuallyAllWeaponSpecs.associateBy { it.weaponId }
         IDToSkill = settings.skillIds.map { settings.getSkillSpec(it) }.associateBy { it.id }
-        allFactionIDs = settings.allFactionSpecs.map { it.id }.toSet()
         IDToShipSystem = settings.allShipSystemSpecs.associateBy { it.id }
+        allFactionIDs = settings.allFactionSpecs.map { it.id }.toSet()
 
 
         allVariants = settings.allVariantIds.mapNotNull { runCatching { settings.getVariant(it) }.getOrNull() }
@@ -93,6 +118,19 @@ object MagicLookup {
         effectiveHullIDToVariant = allVariants.groupBy { it.hullSpec.getEffectiveHullId() }
         baseHullIDToVariant = allVariants.groupBy { it.hullSpec.baseHullId }
 
+        val modIDToElement = mutableMapOf<String, ModElements>()
+        Global.getSettings().modManager.enabledModsCopy.forEach { modSpec ->
+            val innerIDToHullSpec = settings.allShipHullSpecs.filter { it.sourceMod == modSpec }.associateBy { it.hullId }
+            val innerIDToWing = settings.allFighterWingSpecs.filter { it.sourceMod == modSpec }.associateBy { it.id }
+            val innerIDToHullMod = settings.allHullModSpecs.filter { it.sourceMod == modSpec }.associateBy { it.id }
+            val innerIDToWeapon = settings.actuallyAllWeaponSpecs.filter { it.sourceMod == modSpec }.associateBy { it.weaponId }
+            val innerIDToSkill = settings.skillIds.map { settings.getSkillSpec(it) }.filter { it.sourceMod == modSpec }.associateBy { it.id }
+            val innerIDToShipSystem = settings.allShipSystemSpecs.filter { it.sourceMod == modSpec }.associateBy { it.id }
+            val modElements = ModElements(innerIDToHullSpec, innerIDToHullMod, innerIDToWeapon, innerIDToWing, innerIDToSkill, innerIDToShipSystem)
+            modIDToElement[modSpec.id] = modElements
+        }
+        this.modIDToElement = modIDToElement
+
         init = true
     }
 
@@ -100,7 +138,7 @@ object MagicLookup {
         var count = 0
         for(variant in allVariants) {
             if(variant.source != VariantSource.MISSION_SAVE)
-                return
+                continue
 
             val missingElements = variant.findMissingElements(includeModules = false)
             if(missingElements.hadMissing)
@@ -136,7 +174,7 @@ object MagicLookup {
 
     @JvmStatic
     fun getVariantsForBaseHullSpec(hullSpec: ShipHullSpecAPI): List<ShipVariantAPI> {
-        return hullIDToVariant[hullSpec.baseHullId].orEmpty().map { it.clone() }
+        return baseHullIDToVariant[hullSpec.baseHullId].orEmpty().map { it.clone() }
     }
 
     @JvmStatic
