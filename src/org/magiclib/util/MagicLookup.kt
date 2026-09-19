@@ -192,6 +192,13 @@ object MagicLookup {
     @JvmStatic
     fun getHullIDSet(): Set<String> = IDToHullSpec.keys
 
+    // TODO, use this instead of getHullIDSet? Or use two functions which get both keys and values?
+    //@JvmStatic
+    //fun getHullSet(): Map<String, ShipHullSpecAPI> = IDToHullSpec
+
+    //@JvmStatic
+    //fun getHullIDSet(modID: String) = modIDToElement[modID]?.hullspecs?.keys
+
     @JvmStatic
     fun getFighterWingSpec(wingId: String) = IDToWing[wingId]
 
